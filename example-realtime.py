@@ -35,11 +35,12 @@ db = MongoStoryDatabase('mediacloud')
 # setup the mediacloud connection
 mc = MediaCloud( config.get('api','user'), config.get('api','pass') )
 
-max_story_id = db.getMaxStoryId()
-results = mc.storiesSince( max_story_id )
-
 # set up my callback function that adds the reading grade level to the story
 pub.subscribe(mcexamples.algorithms.addReadingLevelToStory, StoryDatabase.EVENT_PRE_STORY_SAVE)
+
+# set up a callback that adds the name of the media source to the story
+pub.subscribe(mcexamples.algorithms.addSourceNameToStory, StoryDatabase.EVENT_PRE_STORY_SAVE)
+
 
 # save all the stories in the db (this will fire the callback above)
 saved = 0
