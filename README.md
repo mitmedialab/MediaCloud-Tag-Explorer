@@ -46,7 +46,22 @@ Examples
 
 If you want to light-weight synchrounous processing, you can add callbacks to modify the stories 
 that you fetch before they are saved to the database.  This examples shows how to do that by adding
-the word count to the story.
+the reading grade level to the story.
 
     python example-readability.py
+
+### Fetching All Articles
+
+MediaCloud is a giant database, but if you want to tap into the firehose, this script gives you an
+example of how.  You could set this up to run on cron and it would save all the story metadata to your
+local database.  This example script also adds the reading grade level and source name.
+
+    python example-realtime.py
+
+Keep an eye on the `mc-realtime.log` it generates for details on what it is doing.
+
+### Web Server
+
+In the `example-web-server` is a simple example of a Flask-based web front end for viewing the data. 
+This example aggregates the 
 
