@@ -1,2 +1,4 @@
+*.pyc
+ 
 mc-client.config
 mc-realtime.log
