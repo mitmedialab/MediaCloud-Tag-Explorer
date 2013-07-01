@@ -35,7 +35,6 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
                         "}")
         rawResults = self._db.stories.map_reduce(map, reduce, "story_reading_level_freq")
         results = self._resultsToDict(rawResults)
-        print results
         # fill in any blanks so we can chart this easily
         maxLevel = int(max(results.keys(), key=int))
         for level in range(maxLevel):
@@ -44,7 +43,7 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
         return results
 
     def storyCountForMediaId(self, media_id):
-        return self._db.stories.find({'media_id':str(media_id)}).count()
+        return self._db.stories.find({'media_id':int(media_id)}).count()
 
     def storyCountByMediaId(self):
         map = Code("function () {"
