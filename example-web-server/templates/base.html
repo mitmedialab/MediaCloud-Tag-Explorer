@@ -3,104 +3,97 @@
 
 <head>
   <title>MediaCloud API Client Examples</title>
-  <link href="/static/css/mediacloud.css" rel="stylesheet" type="text/css"/>
   <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+  <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css"/>
+  <link href="/static/css/mediacloud.css" rel="stylesheet" type="text/css"/>
+  <link href="/static/css/typeahead.css" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
 
 <div class="container"> 
 
-  <div class="row">
+  <div class="row-fluid">
     <div class="span12">
       <div class="page-header">
         <h1>MediaCloud API Client <small>Examples</small></h1>
+        <p><i>
+        {{ story_count }} stories in the database ({{english_story_pct}}% are in English).
+        The highest story id is {{max_story_id}}.
+        </i></p>
       </div>
     </div>
   </div>
 
-  <div class="row">
-    <div class="span12" id="mcSummaryInfo">
-      {{ story_count }} stories in the database ({{english_story_pct}}% are in English).  The max story id is {{max_story_id}}.
-    </div>
-  </div>
-
-  <div class="row">
+  <div class="row-fluid">
 
      <div class="span6" id="mcReadability">
       <h3>Story Reading Level</h3>
       <p>
-      Here is a histogram of story reading grade level.  The horizontal axis is grade level 
+      Here is a histogram of story reading grade level for all.  The horizontal axis is grade level 
       the story is written at. The vertical axis is the number of stories scored at that grade level. 
       </p>
           <!-- chart will be filled in by ajax call -->
     </div>
-  </div>
 
-
-  <div class="row">
-    <div class="span12">
-      <hr/>
-    </div>
-  </div>
-
-  
-  <div class="row">
-    <div class="span12">
-      <h2>Filter For <input type="text" data-provide="typeahead" id="mcPickDomain" placeholder="somenews.com"></h2>
-    </div>
-    <div id="mcFilteredResults" style="display:none">
-      <div class="span12">
-        <p id="mcFilteredInfo">
-        </p>
-      </div>
-      <div class="span6">
-        <h3>Word Count</h3>
-        <div id="mcFilteredWordCounts">
-          <!-- chart will be filled in by ajax call -->
+    <div class="span6">
+      <h2>Filter For <input type="text" id="mcPickDomain" placeholder="type a media source"></h2>
+      <div id="mcFilteredResults" style="display:none">
+        <div class="span12">
+          <p id="mcFilteredInfo">
+          </p>
         </div>
-      </div>
-      <div class="span6">
-        <h3>Reading Level</h3>
-        <div id="mcFilteredReadability">
-          <!-- chart will be filled in by ajax call -->
+        <div class="span6">
+          <h3>Reading Level</h3>
+          <div id="mcFilteredReadability">
+            <!-- chart will be filled in by ajax call -->
+          </div>
         </div>
       </div>
     </div>
+
   </div>
 
-
-  <div class="row">
+  <div class="row-fluid">
     <div class="span12">
       <hr/>
     </div>
   </div>
   
 
-  <div class="row">
+  <div class="row-fluid">
     <div class="span12">
-      <p><b>Top Sources:</b>  
+      <h3>Top Sources 
+        <small>click a source's name to view reading grade level histogram for just that source</small>
+      </h3>
+      <p>
         {% for key, info in media_info.items() %}
-          <a href="#" onclick="Javascript:updateFilterResults({{key}});return false;">{{info['name']}}</a> <span class="badge">{{info['story_count']|int}}</span>
+          <a href="#" onclick="Javascript:updateFilterResults({{key}});return false;">{{info['name']}}</a> <small class="muted">({{info['story_count']|int}})</small> 
+          &nbsp; &nbsp; 
         {% endfor %}
       </p>
     </div>
-  </div >
+  </div>
 
 </div>
+
+<script type="text/javascript" src="/static/js/hogan.js"></script>
+<script type="text/javascript" src="/static/js/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/typeahead.min.js"></script>
+<script type="text/javascript" src="/static/js/d3.v2.min.js"></script>
 
 <script type="text/javascript">
 
 // called by returned JS
 function updateFilteredInfo(mediaSourceName, storyCount){
-  $('#mcFilteredInfo').html("We know about "+storyCount+" articles from "+mediaSourceName);
+  $('#mcFilteredInfo').html("We know about "+storyCount+" articles from <strong>"+mediaSourceName+"</strong>");
 }
 
 // update results based on media source user chooses
 function updateFilterResults(mediaId){
   $('#mcFilteredResults').hide();
   $('#mcFilteredInfo').empty();
-  $('#mcFilteredWordCounts').empty();
   $('#mcFilteredReadability').empty();
   $.ajax({
     type: "GET",
@@ -149,10 +142,6 @@ function histogramChart(container, dataset, chartWidth, chartHeight, barWidth, m
 
 </script>
 
-<script type="text/javascript" src="/static/js/jquery-1.8.2.min.js"></script>
-<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/static/js/d3.v2.min.js"></script>
-
 <script type="text/javascript">
 // stuff to run once the page loads
 $(function(){
@@ -164,12 +153,17 @@ $(function(){
     });
   // set up to fire ajax request when user filters by news source
   $('#mcPickDomain').typeahead({
-      source: {{media_info_json|safe}},
+      local: {{media_info_json|safe}},
       updater: function(item){
           updateFilterResults(item);
       }
-  });
+  }).on('typeahead:selected', onTypeaheadDone)
+    .on('typeahead:autocompleted', onTypeaheadDone);
+  ;
 });
+function onTypeaheadDone($e,datum){
+  updateFilterResults(datum.id)
+}
 </script>
 
 </body>

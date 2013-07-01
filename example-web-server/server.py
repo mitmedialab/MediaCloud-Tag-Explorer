@@ -26,7 +26,8 @@ def index():
         }
         media_info_json.append({
             'id': int(media_id),
-            'name': _media_name(media_id),            
+            'story_count': int(story_count_by_media_id[media_id]),
+            'value': _media_name(media_id),
         })
     story_count = db.storyCount()
     return render_template("base.html",
