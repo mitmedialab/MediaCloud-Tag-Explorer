@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>MediaCloud API Client Examples</title>
+  <title>Reading Grade Levels in the Media</title>
   <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
   <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css"/>
   <link href="/static/css/mediacloud.css" rel="stylesheet" type="text/css"/>
@@ -16,10 +16,10 @@
   <div class="row-fluid">
     <div class="span12">
       <div class="page-header">
-        <h1>MediaCloud API Client <small>Examples</small></h1>
+        <h1>Reading Grade Levels in the Media <small>A MediaCloud API Client Example</small></h1>
         <p><i>
         {{ story_count }} stories in the database ({{english_story_pct}}% are in English).
-        The highest story id is {{max_story_id}}.
+        <!-- The highest story id is {{max_story_id}}. -->
         </i></p>
       </div>
     </div>
@@ -39,15 +39,11 @@
     <div class="span6">
       <h2>Filter For <input type="text" id="mcPickDomain" placeholder="type a media source"></h2>
       <div id="mcFilteredResults" style="display:none">
-        <div class="span12">
-          <p id="mcFilteredInfo">
-          </p>
-        </div>
-        <div class="span6">
-          <h3>Reading Level</h3>
-          <div id="mcFilteredReadability">
-            <!-- chart will be filled in by ajax call -->
-          </div>
+        <p id="mcFilteredInfo">
+        </p>
+        <h3>Reading Level</h3>
+        <div id="mcFilteredReadability">
+          <!-- chart will be filled in by ajax call -->
         </div>
       </div>
     </div>
@@ -68,7 +64,7 @@
       </h3>
       <p>
         {% for key, info in media_info.items() %}
-          <a href="#" onclick="Javascript:updateFilterResults({{key}});return false;">{{info['name']}}</a> <small class="muted">({{info['story_count']|int}})</small> 
+          <a href="#" onclick="Javascript:updateFilterResults({{key}});$('#mcPickDomain').val('{{info['name']}}');return false;">{{info['name']}}</a> <small class="muted">({{info['story_count']|int}})</small> 
           &nbsp; &nbsp; 
         {% endfor %}
       </p>
