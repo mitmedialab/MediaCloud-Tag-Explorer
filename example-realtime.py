@@ -14,8 +14,7 @@ import mcexamples.algorithms
 
 '''
 This example is meant to be run from a cron job on a server.  It fetches all stories 
-created after the latest one it has in it's db.  It saves the metadata for all those to 
-a 'mediacloud' database.
+created page by page.  It saves the metadata for all those to a 'mediacloud' database.
 '''
 
 MAX_PAGES_TO_FETCH = 5
@@ -30,7 +29,6 @@ log = logging.getLogger('mc-realtime')
 log.info("---------------------------------------------------------------------------")
 
 # setup a connection to a local DB
-#db = CouchStoryDatabase('mediacloud', config.get('db','host'), config.get('db','port') )
 db = MongoStoryDatabase('mediacloud')
 
 # setup the mediacloud connection
@@ -50,22 +48,13 @@ first_page = int(config.get('api','first_page'))
 for page in xrange(MAX_PAGES_TO_FETCH):
   query_page = first_page+page
   results = mc.allProcessed(query_page)
-  page_has_existing_stories = False
   log.info("Fetched "+str(len(results))+" stories (page "+str(query_page)+")")
   for story in results:
-    #if int(story['stories_id']) < int(max_story_id):
-      #log.warning("  Story id "+str(story['stories_id'])+" is lower than max id ("+str(max_story_id)+")!"); 
-      #log.info("  Stopping on page "+str(query_page)+" because found a story lower than existing max id")
-      #page_has_existing_stories = True
-      #break
-    #else:
     worked = db.addStory(story)
     if worked:
       saved = saved + 1
     else:
-      log.warning("  unable to save story "+str(story['stories_id']))
-  if page_has_existing_stories:
-    break # bail once we start getting stories we should have already
+      log.warning("  unable to save story "+str(story['stories_id'])) # prob exists already
   config.set('api','first_page',query_page)
   with open(CONFIG_FILENAME,'wb') as config_file_handle: 
     config.write(config_file_handle)
