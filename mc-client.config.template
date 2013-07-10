@@ -1,9 +1,8 @@
 [api]
 user: username
 pass: password
+firstpage: 1
 
 [db]
-user: username
-pass: password
 host: 127.0.0.1
 port: 5984

@@ -19,9 +19,10 @@ a 'mediacloud' database.
 '''
 
 MAX_PAGES_TO_FETCH = 5
+CONFIG_FILENAME = 'mc-client.config'
 
 config = ConfigParser.ConfigParser()
-config.read('mc-client.config')
+config.read(CONFIG_FILENAME)
 
 # setup logging
 logging.basicConfig(filename='mc-realtime.log',level=logging.DEBUG)
@@ -43,28 +44,31 @@ pub.subscribe(mcexamples.algorithms.addReadingLevelToStory, StoryDatabase.EVENT_
 # set up a callback that adds the name of the media source to the story
 pub.subscribe(mcexamples.algorithms.addSourceNameToStory, StoryDatabase.EVENT_PRE_STORY_SAVE)
 
-
 # save all the stories in the db (this will fire the callback above)
 saved = 0
+first_page = int(config.get('api','first_page'))
 for page in xrange(MAX_PAGES_TO_FETCH):
-  query_page = page+1
+  query_page = first_page+page
   results = mc.allProcessed(query_page)
   page_has_existing_stories = False
   log.info("Fetched "+str(len(results))+" stories (page "+str(query_page)+")")
   for story in results:
-    if int(story['stories_id']) < int(max_story_id):
-      log.warning("  Story id "+str(story['stories_id'])+" is lower than max id ("+str(max_story_id)+")!"); 
-      log.info("  Stopping on page "+str(query_page)+" because found a story lower than existing max id")
-      page_has_existing_stories = True
-      break
+    #if int(story['stories_id']) < int(max_story_id):
+      #log.warning("  Story id "+str(story['stories_id'])+" is lower than max id ("+str(max_story_id)+")!"); 
+      #log.info("  Stopping on page "+str(query_page)+" because found a story lower than existing max id")
+      #page_has_existing_stories = True
+      #break
+    #else:
+    worked = db.addStory(story)
+    if worked:
+      saved = saved + 1
     else:
-      worked = db.addStory(story)
-      if worked:
-        saved = saved + 1
-      else:
-        log.warning("  unable to save story "+str(story['stories_id']))
+      log.warning("  unable to save story "+str(story['stories_id']))
   if page_has_existing_stories:
     break # bail once we start getting stories we should have already
+  config.set('api','first_page',query_page)
+  with open(CONFIG_FILENAME,'wb') as config_file_handle: 
+    config.write(config_file_handle)
 
 max_story_id = db.getMaxStoryId()
 
