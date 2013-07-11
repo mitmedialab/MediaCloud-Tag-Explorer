@@ -15,8 +15,8 @@ from mediacloud.storage import *
 import mcexamples.algorithms
 
 '''
-This example is meant to be run from a cron job on a server.    It fetches all stories 
-created page by page.    It saves the metadata for all those to a 'mediacloud' database.
+This example is meant to be run from a cron job on a server. It fetches all stories 
+created page by page. It saves the metadata for all those to a 'mediacloud' database.
 '''
 
 MAX_PAGES_TO_FETCH = 5
