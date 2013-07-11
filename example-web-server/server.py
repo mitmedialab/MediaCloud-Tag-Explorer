@@ -25,8 +25,8 @@ try:
     db = ExampleMongoStoryDatabase(config.get('db','name'),config.get('db','host'),int(config.get('db','port')))
 except pymongo.errors.ConnectionFailure, e:
     log.error(e)
-    sys.exit()
-log.info("Connected to "+config.get('db','name')+" on "+config.get('db','host')+":"+str(config.get('db','port')))
+else:
+    log.info("Connected to "+config.get('db','name')+" on "+config.get('db','host')+":"+str(config.get('db','port')))
 
 @app.route("/")
 def index():
