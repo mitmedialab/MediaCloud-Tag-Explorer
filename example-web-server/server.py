@@ -1,3 +1,4 @@
+from operator import itemgetter
 import os, sys
 from flask import Flask, render_template
 import json
@@ -31,15 +32,16 @@ else:
 @app.route("/")
 def index():
     story_count_by_media_id = db.storyCountByMediaId()
-    media_info = {}
+    top_media_sources = []
     media_info_json = []
     for media_id in story_count_by_media_id.keys():
         clean_id = str(int(media_id))
-        media_info[clean_id] = {
+        top_media_sources.append({
             'id': int(media_id),
+            'clean_id': str(int(media_id)),
             'name': _media_name(media_id),
             'story_count': story_count_by_media_id[media_id]
-        }
+        })
         media_info_json.append({
             'id': int(media_id),
             'story_count': int(story_count_by_media_id[media_id]),
@@ -49,7 +51,7 @@ def index():
     return render_template("base.html",
         story_count = story_count,
         english_story_pct = int(round(100*db.englishStoryCount()/story_count)),
-        media_info = media_info,
+        top_media_sources = sorted(top_media_sources,key=itemgetter('story_count'), reverse=True)[0:20],
         media_info_json = json.dumps(media_info_json),
         max_story_id = db.getMaxStoryId()
     )

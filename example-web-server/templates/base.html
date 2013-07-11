@@ -63,8 +63,8 @@
         <small>click a source's name to view reading grade level histogram for just that source</small>
       </h3>
       <p>
-        {% for key, info in media_info.items() %}
-          <a href="#" onclick="Javascript:updateFilterResults({{key}});$('#mcPickDomain').val('{{info['name']}}');return false;">{{info['name']}}</a> <small class="muted">({{info['story_count']|int}})</small> 
+        {% for info in top_media_sources %}
+          <a href="#" onclick="Javascript:updateFilterResults({{info['clean_id']}});$('#mcPickDomain').val('{{info['name']}}');return false;">{{info['name']}}</a> <small class="muted">({{info['story_count']|int}})</small> 
           &nbsp; &nbsp; 
         {% endfor %}
       </p>
