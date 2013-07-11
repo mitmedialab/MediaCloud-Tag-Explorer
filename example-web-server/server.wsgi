@@ -7,4 +7,4 @@ sys.path.append(basedir)
 sys.path.append(basedir+"../../")
 
 # tell wsgi what to use as the application
-from mc_example_server import app as application
+from server import app as application

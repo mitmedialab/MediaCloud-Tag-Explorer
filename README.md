@@ -13,19 +13,16 @@ and install it like this:
     python setup.py install
 
 Now to run these examples make sure you have Python > 2.6 (and setuptools) and then install 
-these python modules:
+some python modules:
     
-    pip install pypubsub
-    pip install nltk
-    pip install couchdb
-    pip install pymongo
+    easy_install pypubsub
+    easy_install nltk
+    easy_install pymongo
     
-Install and run [CouchDB](http://couchdb.apache.org) or [MongoDb](http://mongodb.org) to store 
-article info.
+Install [MongoDb](http://mongodb.org) to store article info.
 
 Copy the `mc-client.config.template` to `mc-client.config` and edit it, putting in the 
-API username and password.  Then if you are using CouchDB run the `example_create_views.py` 
-script to create the views that the various scripts and webpages use.
+API username and password, and database connection settings too.
 
 ### Ubuntu
 
@@ -62,6 +59,5 @@ Keep an eye on the `mc-realtime.log` it generates for details on what it is doin
 
 ### Web Server
 
-In the `example-web-server` is a simple example of a Flask-based web front end for viewing the data. 
-This example aggregates the 
-
+In the `example-web-server` is a simple example of a Flask-based web front end for viewing the data.
+Check the README.md in there for more info.
