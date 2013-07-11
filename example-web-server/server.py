@@ -1,6 +1,8 @@
 import os, sys
 from flask import Flask, render_template
 import json
+import ConfigParser
+import pymongo
 
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0,parentdir) 
@@ -10,7 +12,14 @@ from mcexamples.db import ExampleMongoStoryDatabase
 
 app = Flask(__name__)
 
-db = ExampleMongoStoryDatabase('mediacloud')
+# connect to the database
+config = ConfigParser.ConfigParser()
+config.read('../mc-client.config')
+try:
+    db = ExampleMongoStoryDatabase(config.get('db','name'),config.get('db','host'),int(config.get('db','port')))
+except pymongo.errors.ConnectionFailure, e:
+    print e
+    sys.exit()
 
 @app.route("/")
 def index():
