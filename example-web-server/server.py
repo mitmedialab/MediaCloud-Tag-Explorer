@@ -3,6 +3,7 @@ from flask import Flask, render_template
 import json
 import ConfigParser
 import pymongo
+import logging
 
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0,parentdir) 
@@ -12,14 +13,20 @@ from mcexamples.db import ExampleMongoStoryDatabase
 
 app = Flask(__name__)
 
+# setup logging
+logging.basicConfig(filename='mc-server.log',level=logging.DEBUG)
+log = logging.getLogger('mc-server')
+log.info("---------------------------------------------------------------------------")
+
 # connect to the database
 config = ConfigParser.ConfigParser()
 config.read(parentdir+'/mc-client.config')
 try:
     db = ExampleMongoStoryDatabase(config.get('db','name'),config.get('db','host'),int(config.get('db','port')))
 except pymongo.errors.ConnectionFailure, e:
-    print e
+    log.error(e)
     sys.exit()
+log.info("Connected to "+config.get('db','name')+" on "+config.get('db','host')+":"+str(config.get('db','port')))
 
 @app.route("/")
 def index():
