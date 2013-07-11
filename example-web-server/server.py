@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 # connect to the database
 config = ConfigParser.ConfigParser()
-config.read('../mc-client.config')
+config.read(parentdir+'/mc-client.config')
 try:
     db = ExampleMongoStoryDatabase(config.get('db','name'),config.get('db','host'),int(config.get('db','port')))
 except pymongo.errors.ConnectionFailure, e:
