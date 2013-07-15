@@ -10,30 +10,15 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
         return self._db.stories.find({"is_english":True}).count()
 
     def storyReadingLevelFreq(self,media_id):
-        if media_id == None:
-            map = Code("function () {"
-                    "       if(this.fk_grade_level){"
-                    "           emit(Math.round(this.fk_grade_level),1);"
-                    "       }"
-                    "}")
-            results_name = "story_reading_level_freq"
-        else:
-            map = Code("function () {"
-                    "     if(this.fk_grade_level){"
-                    "       if(this.media_id==\""+str(media_id)+"\"){"
-                    "         emit(Math.round(this.fk_grade_level),1);"
-                    "     }"
-                    "   }"                    
-                    "}")
-            results_name = "story_reading_level_freq_"+str(media_id)
-        reduce = Code("function (key, values) {"
-                        "   var total = 0;"
-                        "   for (var i = 0; i < values.length; i++) {"
-                        "       total += values[i];"
-                        "   }"
-                        "   return total;"
-                        "}")
-        rawResults = self._db.stories.map_reduce(map, reduce, "story_reading_level_freq")
+        # @see http://wiki.summercode.com/mongodb_aggregation_functions_and_ruby_grouping_elaborated
+        # @see http://api.mongodb.org/python/2.2.1/api/pymongo/collection.html
+        keyf = Code("function(story){ return { _id:Math.round(story.fk_grade_level)}; } ")
+        condition = None
+        initial = {'value':0}
+        reduce = Code("function(doc,prev) { prev.value += 1; }") 
+        if media_id != None:
+            condition = {"media_id": int(media_id)}
+        rawResults = self._db.stories.group(keyf, condition, initial, reduce);
         results = self._resultsToDict(rawResults)
         # fill in any blanks so we can chart this easily
         maxLevel = int(max(results.keys(), key=int))
@@ -46,24 +31,18 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
         return self._db.stories.find({'media_id':int(media_id)}).count()
 
     def storyCountByMediaId(self):
-        map = Code("function () {"
-                    "   emit(this.media_id, 1);"
-                    "}")
-        reduce  = Code("function (key, values) {"
-                        "   var total = 0;"
-                        "   for (var i = 0; i < values.length; i++) {"
-                        "       total += values[i];"
-                        "   }"
-                        "   return total;"
-                        "}")
-        rawResults = self._db.stories.map_reduce(map, reduce, "story_count_by_media_id")
-        return self._resultsToDict(rawResults)
+        keyf = ['media_id']
+        condition = None
+        initial = {'value':0}
+        reduce = Code("function(doc,prev) { prev.value += 1; }") 
+        rawResults = self._db.stories.group(keyf, condition, initial, reduce);
+        return self._resultsToDict(rawResults,'media_id')
 
-    def _resultsToDict(self, rawResults):
+    def _resultsToDict(self, rawResults, id_key='_id'):
         ''' 
         Helper to change a key-value set of results into a python dict
         '''
         results = {}
-        for doc in rawResults.find():
-            results[ doc['_id'] ] = doc['value']
+        for doc in rawResults:
+            results[ doc[id_key] ] = doc['value']
         return results
