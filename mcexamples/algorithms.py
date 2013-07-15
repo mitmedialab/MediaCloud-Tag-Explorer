@@ -29,7 +29,7 @@ def addReadingLevelToStory(db_story, raw_story):
             except (KeyError, UnicodeDecodeError):
                     pass
     if (gradeLevel != None):
-            db_story['fk_grade_level'] = gradeLevel
+            db_story['fk_grade_level'] = round(gradeLevel)
 
 def isEnglish(text):
     '''
