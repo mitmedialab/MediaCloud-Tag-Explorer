@@ -14,11 +14,11 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
         # @see http://wiki.summercode.com/mongodb_aggregation_functions_and_ruby_grouping_elaborated
         # @see http://api.mongodb.org/python/2.2.1/api/pymongo/collection.html
         keyf = Code("function(story){ return { _id:Math.round(story.fk_grade_level)}; } ")
-        condition = None
+        condition = {"is_english": True}
         initial = {'value':0}
         reduce = Code("function(doc,prev) { prev.value += 1; }") 
         if media_id != None:
-            condition = {"media_id": int(media_id)}
+            condition["media_id"] = int(media_id)
         rawResults = self._db.stories.group(keyf, condition, initial, reduce);
         results = self._resultsToDict(rawResults)
         # fill in any blanks so we can chart this easily
