@@ -1,3 +1,4 @@
+import math
 from mediacloud.storage import MongoStoryDatabase
 from bson.code import Code
 
@@ -44,5 +45,6 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
         '''
         results = {}
         for doc in rawResults:
-            results[ doc[id_key] ] = doc['value']
+            if not math.isnan(doc[id_key]):
+                results[ doc[id_key] ] = doc['value']
         return results
