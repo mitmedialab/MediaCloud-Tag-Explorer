@@ -20,7 +20,7 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
         if media_id != None:
             condition["media_id"] = int(media_id)
         rawResults = self._db.stories.group(key, condition, initial, reduce);
-        results = self._resultsToDict(rawResults)
+        results = self._resultsToDict(rawResults,'fk_grade_level')
         # fill in any blanks so we can chart this easily
         maxLevel = int(max(results.keys(), key=int))
         for level in range(maxLevel):
