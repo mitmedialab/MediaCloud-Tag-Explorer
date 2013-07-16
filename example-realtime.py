@@ -51,7 +51,7 @@ pub.subscribe(mcexamples.algorithms.addSourceNameToStory, StoryDatabase.EVENT_PR
 saved = 0
 first_page = int(config.get('api','first_page'))
 for page in xrange(MAX_PAGES_TO_FETCH):
-    query_page = first_page+page
+    query_page = first_page+(page+1)
     results = mc.allProcessed(query_page)
     log.info("Fetched "+str(len(results))+" stories (page "+str(query_page)+")")
     for story in results:
