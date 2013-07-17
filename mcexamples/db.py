@@ -65,5 +65,4 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
                 key_ok = False
             if key_ok:
                 results[ int(doc[id_key]) ] = doc['value']
-        print results.keys()
         return results
