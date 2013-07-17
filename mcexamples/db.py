@@ -20,9 +20,12 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
         if media_id != None:
             condition["media_id"] = int(media_id)
         rawResults = self._db.stories.group(key, condition, initial, reduce);
-        results = self._resultsToDict(rawResults,'fk_grade_level')
+        results = self._resultsToDict(rawResults,'fk_grade_level', [0,21])
         # fill in any blanks so we can chart this easily
-        maxLevel = int(max(results.keys(), key=int))
+        if len(results)==0: # handle situation where there are no grade levels in the DB
+            maxLevel = 20
+        else:
+            maxLevel = int(max(results.keys(), key=int))
         for level in range(maxLevel):
             if not (level in results.keys()):
                 results[level] = 0
@@ -39,12 +42,27 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
         rawResults = self._db.stories.group(key, condition, initial, reduce);
         return self._resultsToDict(rawResults,'media_id')
 
-    def _resultsToDict(self, rawResults, id_key='_id'):
+    def _resultsToDict(self, rawResults, id_key, key_min_max=None):
         ''' 
         Helper to change a key-value set of results into a python dict
         '''
         results = {}
         for doc in rawResults:
-            if not math.isnan(doc[id_key]):
-                results[ doc[id_key] ] = doc['value']
+            key_ok = False
+            try:
+                # first make sure key is an integer
+                throwaway = int(doc[id_key])
+                # now check optional range
+                if key_min_max!=None:
+                    key = int(doc[id_key])
+                    if key>key_min_max[0] and key<key_min_max[1]:
+                        key_ok = True
+                else:
+                    key_ok = True
+            except:
+                # we got NaN, so ignore it
+                key_ok = False
+            if key_ok:
+                results[ int(doc[id_key]) ] = doc['value']
+        print results.keys()
         return results
