@@ -42,6 +42,7 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
         rawResults = self._db.stories.group(key, condition, initial, reduce);
         return self._resultsToDict(rawResults,'media_id')
 
+    # assumes key is integer!
     def _resultsToDict(self, rawResults, id_key, key_min_max=None):
         ''' 
         Helper to change a key-value set of results into a python dict
