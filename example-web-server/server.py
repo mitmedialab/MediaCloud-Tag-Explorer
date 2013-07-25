@@ -59,11 +59,8 @@ def all_domain_info():
     refresh_cache = True
     reading_level_info = _get_from_cache('reading_level_info',86400) # cache lasts one day
     if reading_level_info == None:
-        print "cache miss"
         reading_level_info = _reading_level_info()
         _set_in_cache('reading_level_info',reading_level_info)
-    else :
-        print "cache hit"
     return render_template("data.js",
         reading_level_info = reading_level_info
     )
