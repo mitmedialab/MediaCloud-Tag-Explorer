@@ -1,10 +1,6 @@
+import os, sys, time, json, logging, ConfigParser, pymongo
 from operator import itemgetter
-import os, sys
 from flask import Flask, render_template
-import json
-import ConfigParser
-import pymongo
-import logging
 
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0,parentdir) 
@@ -13,6 +9,8 @@ import mediacloud.api
 from mcexamples.db import ExampleMongoStoryDatabase
 
 app = Flask(__name__)
+
+cache = {}
 
 # setup logging
 logging.basicConfig(filename='mc-server.log',level=logging.DEBUG)
@@ -58,8 +56,16 @@ def index():
 
 @app.route("/media/all/info")
 def all_domain_info():
-    return render_template("data.js",
+    refresh_cache = True
+    reading_level_info = _get_from_cache('reading_level_info',86400) # cache lasts one day
+    if reading_level_info == None:
+        print "cache miss"
         reading_level_info = _reading_level_info()
+        _set_in_cache('reading_level_info',reading_level_info)
+    else :
+        print "cache hit"
+    return render_template("data.js",
+        reading_level_info = reading_level_info
     )
 
 @app.route("/media/<media_id>/info")
@@ -87,6 +93,18 @@ def _assemble_info(data,bucket_size,items_to_show):
             'final_bucket': bucket_size*items_to_show,
             'items_to_show': items_to_show,
             'biggest_value': max(values)
+    }
+
+def _get_from_cache(key, max_age):
+    if key in cache:
+        if time.mktime(time.gmtime()) - cache[key]['time'] < max_age:
+            return cache[key]['value']
+    return None
+
+def _set_in_cache(key, value):
+    cache[key] = {
+        'value': value,
+        'time': time.mktime(time.gmtime())
     }
 
 if __name__ == "__main__":
