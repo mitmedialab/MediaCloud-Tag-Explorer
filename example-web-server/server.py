@@ -10,7 +10,7 @@ from mcexamples.db import ExampleMongoStoryDatabase
 
 app = Flask(__name__)
 
-cache = {}
+cache = {}  # in-memory cache, controlled by _get_from_cache and _set_in_cache helpers
 
 # setup logging
 logging.basicConfig(filename='mc-server.log',level=logging.DEBUG)
@@ -29,20 +29,23 @@ else:
 
 @app.route("/")
 def index():
-    story_count_by_media_id = db.storyCountByMediaId()
+    story_counts_by_media_id = _get_from_cache('story_counts_by_media_id',3600) # cache lasts one hour
+    if story_counts_by_media_id == None:
+        story_counts_by_media_id = db.storyCountByMediaId()
+        _set_in_cache('story_counts_by_media_id',story_counts_by_media_id)
     top_media_sources = []
     media_info_json = []
-    for media_id in story_count_by_media_id.keys():
+    for media_id in story_counts_by_media_id.keys():
         clean_id = str(int(media_id))
         top_media_sources.append({
             'id': int(media_id),
             'clean_id': str(int(media_id)),
             'name': _media_name(media_id),
-            'story_count': story_count_by_media_id[media_id]
+            'story_count': story_counts_by_media_id[media_id]
         })
         media_info_json.append({
             'id': int(media_id),
-            'story_count': int(story_count_by_media_id[media_id]),
+            'story_count': int(story_counts_by_media_id[media_id]),
             'value': _media_name(media_id),
         })
     story_count = db.storyCount()
@@ -56,7 +59,6 @@ def index():
 
 @app.route("/media/all/info")
 def all_domain_info():
-    refresh_cache = True
     reading_level_info = _get_from_cache('reading_level_info',86400) # cache lasts one day
     if reading_level_info == None:
         reading_level_info = _reading_level_info()
