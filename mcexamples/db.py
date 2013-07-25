@@ -14,7 +14,7 @@ class ExampleMongoStoryDatabase(MongoStoryDatabase):
         # @see http://wiki.summercode.com/mongodb_aggregation_functions_and_ruby_grouping_elaborated
         # @see http://api.mongodb.org/python/2.2.1/api/pymongo/collection.html
         key = ['fk_grade_level']
-        condition = {"is_english": True}
+        condition = {"is_english": True, 'fk_grade_level': {"$gte":0, "$lte":21}}
         initial = {'value':0}
         reduce = Code("function(doc,prev) { prev.value += 1; }") 
         if media_id != None:
