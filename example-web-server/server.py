@@ -29,25 +29,28 @@ else:
 
 @app.route("/")
 def index():
-    story_counts_by_media_id = _get_from_cache('story_counts_by_media_id',3600) # cache lasts one hour
-    if story_counts_by_media_id == None:
+    media_source_info = _get_from_cache('media_source_info',3600) # cache lasts one hour
+    if media_source_info == None:
         story_counts_by_media_id = db.storyCountByMediaId()
-        _set_in_cache('story_counts_by_media_id',story_counts_by_media_id)
-    top_media_sources = []
-    media_info_json = []
-    for media_id in story_counts_by_media_id.keys():
-        clean_id = str(int(media_id))
-        top_media_sources.append({
-            'id': int(media_id),
-            'clean_id': str(int(media_id)),
-            'name': _media_name(media_id),
-            'story_count': story_counts_by_media_id[media_id]
-        })
-        media_info_json.append({
-            'id': int(media_id),
-            'story_count': int(story_counts_by_media_id[media_id]),
-            'value': _media_name(media_id),
-        })
+        top_media_sources = []
+        media_info_json = []
+        for media_id in story_counts_by_media_id.keys():
+            clean_id = str(int(media_id))
+            top_media_sources.append({
+                'id': int(media_id),
+                'clean_id': str(int(media_id)),
+                'name': _media_name(media_id),
+                'story_count': story_counts_by_media_id[media_id]
+            })
+            media_info_json.append({
+                'id': int(media_id),
+                'story_count': int(story_counts_by_media_id[media_id]),
+                'value': _media_name(media_id),
+            })
+        _set_in_cache('media_source_info',{'top_media_sources':top_media_sources, 'media_source_info':media_source_info})        
+    else:
+        top_media_sources = media_source_info['top_media_sources']
+        media_info_json = media_source_info['media_source_info']
     story_count = db.storyCount()
     return render_template("base.html",
         story_count = story_count,
