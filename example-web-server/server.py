@@ -1,6 +1,7 @@
 import os, sys, time, json, logging, ConfigParser, pymongo, locale
 from operator import itemgetter
 from flask import Flask, render_template
+import jinja2
 
 parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0,parentdir) 
@@ -115,9 +116,8 @@ def format_number(value):
     except locale.Error:
         locale.setlocale(locale.LC_ALL, '') #set to default locale (works on windows)
     return locale.format('%d', value, True)
-    #return "${0:,d}".format(int(value))
 
 if __name__ == "__main__":
     app.debug = True
-    app.jinja_env.filters['prettynumberformat'] = format_number
+    jinja2.filters.FILTERS['prettynumberformat'] = format_number
     app.run()
