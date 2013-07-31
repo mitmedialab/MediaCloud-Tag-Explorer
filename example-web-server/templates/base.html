@@ -17,10 +17,14 @@
     <div class="span12">
       <div class="page-header">
         <h1>Reading Grade Levels in the Media <small>A MediaCloud API Client Example</small></h1>
-        <p><i>
-        {{ story_count }} stories in the database ({{english_story_pct}}% are in English).
+        <p>
+        This website shows the distribution of 
+        <a href="https://en.wikipedia.org/wiki/Flesch–Kincaid_readability_test">Reading-Grade levels</a> 
+        of stories in different media sources. You can use the input on the right to see the distribution for a particular
+        media source.  The primary purpose of this website is to test out the nascent MediaCloud API.
+        There are {{ story_count|prettynumberformat }} stories in our database ({{english_story_pct}}% are in English).
         <!-- The highest story id is {{max_story_id}}. -->
-        </i></p>
+        </p>
       </div>
     </div>
   </div>
@@ -30,8 +34,8 @@
      <div class="span6" id="mcReadability">
       <h3>Story Reading Level</h3>
       <p>
-      Here is a histogram of story reading grade level for all.  The horizontal axis is grade level 
-      the story is written at. The vertical axis is the number of stories scored at that grade level. 
+      Here is a histogram of reading grade levels for all the articles we have in our database.  The horizontal axis is grade level 
+      the story is written at. The vertical axis is the number of stories scored at that grade level.  
       </p>
           <!-- chart will be filled in by ajax call -->
     </div>
@@ -69,6 +73,22 @@
         {% endfor %}
       </p>
     </div>
+  </div>
+
+  <div class="row-fluid">
+    <div class="span12">
+      <hr/>
+    </div>
+  </div>
+
+  <div class="row-fluid">
+    <div class="span12">
+      <p><small>
+        Created by the <a href="http://civic.mit.edu.">MIT Center for Civic Media</a>.  Get the <a href="https://github.com/c4fcm/MediaCloud-API-Examples">code from GitHub</a>. 
+        Powered by Media Cloud, a project of the <a href="http://cyber.law.harvard.edu/">Berkman Center for Internet & Society</a> at Harvard.
+      </small></p>
+      <img src="/static/img/c4cm-badge.gif" name="MIT Center for Civic Media"/>
+      <img src="/static/img/mediacloud-badge.gif" name="Powered by Media Cloud"/>
   </div>
 
 </div>

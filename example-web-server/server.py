@@ -1,4 +1,4 @@
-import os, sys, time, json, logging, ConfigParser, pymongo
+import os, sys, time, json, logging, ConfigParser, pymongo, locale
 from operator import itemgetter
 from flask import Flask, render_template
 
@@ -55,7 +55,7 @@ def index():
     return render_template("base.html",
         story_count = story_count,
         english_story_pct = int(round(100*db.englishStoryCount()/story_count)),
-        top_media_sources = sorted(top_media_sources,key=itemgetter('story_count'), reverse=True)[0:20],
+        top_media_sources = sorted(top_media_sources,key=itemgetter('story_count'), reverse=True)[0:40],
         media_info_json = json.dumps(media_info_json),
         max_story_id = db.getMaxStoryId()
     )
@@ -109,6 +109,15 @@ def _set_in_cache(key, value):
         'time': time.mktime(time.gmtime())
     }
 
+def format_number(value):
+    try:
+        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8') #use locale.format for commafication
+    except locale.Error:
+        locale.setlocale(locale.LC_ALL, '') #set to default locale (works on windows)
+    return locale.format('%d', value, True)
+    #return "${0:,d}".format(int(value))
+
 if __name__ == "__main__":
     app.debug = True
+    app.jinja_env.filters['prettynumberformat'] = format_number
     app.run()
