@@ -30,40 +30,46 @@ else:
 
 @app.route("/")
 def index():
-    media_source_info = _get_from_cache('media_source_info',3600) # cache lasts one hour
+    media_source_info = _get_from_cache('media_source_info')
     if media_source_info == None:
         story_counts_by_media_id = db.storyCountByMediaId()
         top_media_sources = []
         media_info_json = []
         for media_id in story_counts_by_media_id.keys():
             clean_id = str(int(media_id))
-            top_media_sources.append({
-                'id': int(media_id),
-                'clean_id': str(int(media_id)),
-                'name': _media_name(media_id),
-                'story_count': story_counts_by_media_id[media_id]
-            })
-            media_info_json.append({
-                'id': int(media_id),
-                'story_count': int(story_counts_by_media_id[media_id]),
-                'value': _media_name(media_id),
-            })
-        _set_in_cache('media_source_info',{'top_media_sources':top_media_sources, 'media_source_info':media_source_info})        
-    else:
-        top_media_sources = media_source_info['top_media_sources']
-        media_info_json = media_source_info['media_source_info']
+            media_name = _media_name(media_id)
+            only_ascii_in_name = len(''.join([x for x in media_name if ord(x) > 128])) == 0
+            if only_ascii_in_name:
+                top_media_sources.append({
+                    'id': int(media_id),
+                    'clean_id': str(int(media_id)),
+                    'name': _media_name(media_id),
+                    'story_count': story_counts_by_media_id[media_id],
+                })
+                media_info_json.append({
+                    'id': int(media_id),
+                    'story_count': int(story_counts_by_media_id[media_id]),
+                    'value': _media_name(media_id),
+                })
+        _set_in_cache('media_source_info',{
+            'top_media_sources':sorted(top_media_sources,key=itemgetter('story_count'), reverse=True), 
+            'media_info_json':media_info_json
+        })
+        media_source_info = _get_from_cache('media_source_info')
+    top_media_sources = media_source_info['top_media_sources']
+    media_info_json = media_source_info['media_info_json']
     story_count = db.storyCount()
     return render_template("base.html",
-        story_count = story_count,
-        english_story_pct = int(round(100*db.englishStoryCount()/story_count)),
-        top_media_sources = sorted(top_media_sources,key=itemgetter('story_count'), reverse=True)[0:40],
+        english_story_count = db.englishStoryCount(),
+        media_source_count = len(top_media_sources),
+        top_media_sources = top_media_sources[0:10],
         media_info_json = json.dumps(media_info_json),
         max_story_id = db.getMaxStoryId()
     )
 
 @app.route("/media/all/info")
 def all_domain_info():
-    reading_level_info = _get_from_cache('reading_level_info',86400) # cache lasts one day
+    reading_level_info = _get_from_cache('reading_level_info')
     if reading_level_info == None:
         reading_level_info = _reading_level_info()
         _set_in_cache('reading_level_info',reading_level_info)
@@ -98,7 +104,7 @@ def _assemble_info(data,bucket_size,items_to_show):
             'biggest_value': max(values)
     }
 
-def _get_from_cache(key, max_age):
+def _get_from_cache(key, max_age=86400):
     if key in cache:
         if time.mktime(time.gmtime()) - cache[key]['time'] < max_age:
             return cache[key]['value']
@@ -110,14 +116,6 @@ def _set_in_cache(key, value):
         'time': time.mktime(time.gmtime())
     }
 
-def format_number(value):
-    try:
-        locale.setlocale(locale.LC_ALL, 'en_US.UTF-8') #use locale.format for commafication
-    except locale.Error:
-        locale.setlocale(locale.LC_ALL, '') #set to default locale (works on windows)
-    return locale.format('%d', value, True)
-
 if __name__ == "__main__":
     app.debug = True
-    jinja2.filters.FILTERS['prettynumberformat'] = format_number
     app.run()

@@ -4,7 +4,6 @@
 <head>
   <title>Reading Grade Levels in the Media</title>
   <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
-  <link href="/static/css/bootstrap-responsive.min.css" rel="stylesheet" type="text/css"/>
   <link href="/static/css/mediacloud.css" rel="stylesheet" type="text/css"/>
   <link href="/static/css/typeahead.css" rel="stylesheet" type="text/css"/>
 </head>
@@ -13,85 +12,66 @@
 
 <div class="container"> 
 
-  <div class="row-fluid">
-    <div class="span12">
-      <div class="page-header">
-        <h1>Reading Grade Levels in the Media <small>A MediaCloud API Client Example</small></h1>
-        <p>
-        This website shows the distribution of 
-        <a href="https://en.wikipedia.org/wiki/Flesch–Kincaid_readability_test">Reading-Grade levels</a> 
-        of stories in different media sources. You can use the input on the right to see the distribution for a particular
-        media source.  The primary purpose of this website is to test out the nascent MediaCloud API.
-        There are {{ story_count }} stories in our database ({{english_story_pct}}% are in English).
-        <!-- The highest story id is {{max_story_id}}. -->
-        </p>
-      </div>
+  <div class="row">
+
+    <div class="span5">
+      <h1>Reading Grade Levels<br />in the Media</h1>
+
+      <a href="http://civic.mit.edu"><img src="/static/img/c4cm-badge.gif" name="MIT Center for Civic Media"/></a>
+      
+      <a href="http://mediacloud.org"><img src="/static/img/mediacloud-badge.gif" name="Powered by Media Cloud"/></a>
+
     </div>
-  </div>
+    
+    <div class="span6 offset1">
 
-  <div class="row-fluid">
-
-     <div class="span6" id="mcReadability">
-      <h3>Story Reading Level</h3>
+      <h3>What is this?</h3>
       <p>
-      Here is a histogram of reading grade levels for all the articles we have in our database.  The horizontal axis is grade level 
-      the story is written at. The vertical axis is the number of stories scored at that grade level.  
+      This website shows the distribution of 
+      <a href="https://en.wikipedia.org/wiki/Flesch–Kincaid_readability_test">Reading-Grade levels</a> 
+      of stories in different (English) media sources. Here is a histogram of reading grade levels for all the 
+      articles we have in our database.  The horizontal axis is grade level the story is written at. 
+      The vertical axis is the number of stories scored at that grade level.  As you can see, writing for 
+      around a 9th grade education level is most common.  We have {{media_source_count}} sources in the database.
       </p>
-          <!-- chart will be filled in by ajax call -->
-    </div>
+      <div id="mcReadability">
+        <!-- chart will be filled in by ajax call -->
+      </div>
 
-    <div class="span6">
-      <h2>Filter For <input type="text" id="mcPickDomain" placeholder="type a media source"></h2>
+      <h3>Check a specific media source <button class="btn" onClick="Javascript:pickRandomMediaSource();">random</button></h3>
+      <p>
+        <input type="text" id="mcPickDomain" placeholder="start typing...">
+      </p>
       <div id="mcFilteredResults" style="display:none">
-        <p id="mcFilteredInfo">
-        </p>
-        <h3>Reading Level</h3>
         <div id="mcFilteredReadability">
           <!-- chart will be filled in by ajax call -->
         </div>
       </div>
-    </div>
+      <p id="mcFilteredInfo"></p>
 
-  </div>
-
-  <div class="row-fluid">
-    <div class="span12">
-      <hr/>
-    </div>
-  </div>
-  
-
-  <div class="row-fluid">
-    <div class="span12">
-      <h3>Top Sources 
-        <small>click a source's name to view reading grade level histogram for just that source</small>
-      </h3>
-      <p>
+      <h3>Some of our top media sources</h3>
+      <p>Below is a list of the sources we have the most articles from.  You can type in a newspaper or website name above, or click one of these name to see the reading grade level histogram for just that source.</p>
+      <ul>
         {% for info in top_media_sources %}
-          <a href="#" onclick="Javascript:updateFilterResults({{info['clean_id']}});$('#mcPickDomain').val('{{info['name']}}');return false;">{{info['name']}}</a> <small class="muted">({{info['story_count']|int}})</small> 
-          &nbsp; &nbsp; 
+          <li>
+            <a href="#" onclick="Javascript:updateFilterResults({{info['clean_id']}});$('#mcPickDomain').val('{{info['name']}}');return false;">{{info['name']}}</a> <small class="muted">({{info['story_count']|int}})</small> 
+          </li>
         {% endfor %}
+      </ul>
+
+      <h3>Why did we make this?</h3>
+      <p>
+      We (the <a href="http://civic.mit.edu">MIT Center for Civic Media</a>)
+      build a lot of software to support our quantitative media analysis research.  
+      This simple site tests that infrastructure (built on top of the <a href="http://mediacloud.org/">Media Cloud</a> platform).
+      Think of it as a live integration test more than some amazing insight into who writes at what level.
+      Email rahulb [at] mit.edu if you have any questions.
       </p>
+
     </div>
   </div>
 
-  <div class="row-fluid">
-    <div class="span12">
-      <hr/>
-    </div>
-  </div>
-
-  <div class="row-fluid">
-    <div class="span12">
-      <p><small>
-        Created by the <a href="http://civic.mit.edu.">MIT Center for Civic Media</a>.  Get the <a href="https://github.com/c4fcm/MediaCloud-API-Examples">code from GitHub</a>. 
-        Powered by Media Cloud, a project of the <a href="http://cyber.law.harvard.edu/">Berkman Center for Internet & Society</a> at Harvard.
-      </small></p>
-      <img src="/static/img/c4cm-badge.gif" name="MIT Center for Civic Media"/>
-      <img src="/static/img/mediacloud-badge.gif" name="Powered by Media Cloud"/>
-  </div>
-
-</div>
+<div>
 
 <script type="text/javascript" src="/static/js/hogan.js"></script>
 <script type="text/javascript" src="/static/js/jquery-1.8.2.min.js"></script>
@@ -103,7 +83,7 @@
 
 // called by returned JS
 function updateFilteredInfo(mediaSourceName, storyCount){
-  $('#mcFilteredInfo').html("We know about "+storyCount+" articles from <strong>"+mediaSourceName+"</strong>");
+  $('#mcFilteredInfo').html("We checked "+storyCount+" articles from "+mediaSourceName);
 }
 
 // update results based on media source user chooses
@@ -159,6 +139,7 @@ function histogramChart(container, dataset, chartWidth, chartHeight, barWidth, m
 </script>
 
 <script type="text/javascript">
+var allMediaSources = {{media_info_json|safe}};
 // stuff to run once the page loads
 $(function(){
   // load up the aggregate charts
@@ -169,16 +150,22 @@ $(function(){
     });
   // set up to fire ajax request when user filters by news source
   $('#mcPickDomain').typeahead({
-      local: {{media_info_json|safe}},
+      local: allMediaSources,
       updater: function(item){
-          updateFilterResults(item);
+        updateFilterResults(item);
       }
   }).on('typeahead:selected', onTypeaheadDone)
     .on('typeahead:autocompleted', onTypeaheadDone);
   ;
+  $('#mcPickDomain').focus();
 });
 function onTypeaheadDone($e,datum){
   updateFilterResults(datum.id)
+}
+function pickRandomMediaSource(){
+  var source = allMediaSources[Math.floor(Math.random()*allMediaSources.length)]
+  $('#mcPickDomain').val(source['value']);
+  updateFilterResults(source['id']);
 }
 </script>
 
