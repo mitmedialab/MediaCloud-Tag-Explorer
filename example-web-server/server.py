@@ -62,6 +62,7 @@ def index():
     return render_template("base.html",
         english_story_count = db.englishStoryCount(),
         media_source_count = len(top_media_sources),
+        story_count = story_count,
         top_media_sources = top_media_sources[0:10],
         media_info_json = json.dumps(media_info_json),
         max_story_id = db.getMaxStoryId()
