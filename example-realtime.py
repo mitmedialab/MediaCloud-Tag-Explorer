@@ -52,17 +52,21 @@ saved = 0
 first_page = int(config.get('api','first_page'))
 for page in xrange(MAX_PAGES_TO_FETCH):
     query_page = first_page+(page+1)
-    results = mc.allProcessed(query_page)
-    log.info("Fetched "+str(len(results))+" stories (page "+str(query_page)+")")
-    for story in results:
-        worked = db.addStory(story)
-        if worked:
-            saved = saved + 1
-        else:
-            log.warning("    unable to save story "+str(story['stories_id'])) # prob exists already
-    config.set('api','first_page',query_page)
-    with open(CONFIG_FILENAME,'wb') as config_file_handle: 
-        config.write(config_file_handle)
+    try:
+        results = mc.allProcessed(query_page)
+        log.info("Fetched "+str(len(results))+" stories (page "+str(query_page)+")")
+        for story in results:
+            worked = db.addStory(story)
+            if worked:
+                saved = saved + 1
+            else:
+                log.warning("    unable to save story "+str(story['stories_id'])) # prob exists already
+        config.set('api','first_page',query_page)
+        with open(CONFIG_FILENAME,'wb') as config_file_handle: 
+            config.write(config_file_handle)
+    except ValueError as error:  # includes simplejson.decoder.JSONDecodeError
+        log.error("Fetch failed: "+str(error))
+        break
 
 max_story_id = db.getMaxStoryId()
 
