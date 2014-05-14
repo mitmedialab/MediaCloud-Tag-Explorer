@@ -12,163 +12,39 @@
 
 <div class="container"> 
 
-  <div class="row">
-
-    <div class="span5">
-      <h1>Reading Grade Levels<br />in the Media</h1>
-
-      <a href="http://civic.mit.edu"><img src="/static/img/c4cm-badge.gif" name="MIT Center for Civic Media"/></a>
-      
-      <a href="http://mediacloud.org"><img src="/static/img/mediacloud-badge.gif" name="Powered by Media Cloud"/></a>
-
+  <header>
+    <div class="row">
+      <div class="span12">
+        {% block header %}
+          <h1>Public Tag in Media Cloud</h1>
+        {% endblock %}
+      </div>
     </div>
-    
-    <div class="span6 offset1">
+  </header>
 
-      <h3>What is this?</h3>
-      <p>
-      This website shows the distribution of 
-      <a href="https://en.wikipedia.org/wiki/Flesch–Kincaid_readability_test">Reading-Grade levels</a> 
-      of stories in different (English) media sources. We have {{media_source_count}} sources and {{story_count}} 
-      articles in the database. Below a histogram of reading grade levels for all the 
-      articles we have in our database.  The horizontal axis is grade level the story is written at. 
-      The vertical axis is the number of stories scored at that grade level.  As you can see, writing for 
-      around a 9th grade education level is most common.  
-      </p>
-      <div id="mcReadability">
-        <!-- chart will be filled in by ajax call -->
-      </div>
-
-      <h3>Check a specific media source <button class="btn" onClick="Javascript:pickRandomMediaSource();">random</button></h3>
-      <p>
-        <input type="text" id="mcPickDomain" placeholder="start typing...">
-      </p>
-      <div id="mcFilteredResults" style="display:none">
-        <div id="mcFilteredReadability">
-          <!-- chart will be filled in by ajax call -->
-        </div>
-      </div>
-      <p id="mcFilteredInfo"></p>
-
-      <h3>Some of our top media sources</h3>
-      <p>Below is a list of the sources we have the most articles from.  You can type in a newspaper or website name above, or click one of these name to see the reading grade level histogram for just that source.</p>
-      <ul>
-        {% for info in top_media_sources %}
-          <li>
-            <a href="#" onclick="Javascript:updateFilterResults({{info['clean_id']}});$('#mcPickDomain').val('{{info['name']}}');return false;">{{info['name']}}</a> <small class="muted">({{info['story_count']|int}})</small> 
-          </li>
-        {% endfor %}
-      </ul>
-
-      <h3>Why did we make this?</h3>
-      <p>
-      We (the <a href="http://civic.mit.edu">MIT Center for Civic Media</a>)
-      build a lot of software to support our quantitative media analysis research.  
-      This simple site tests that infrastructure (built on top of the <a href="http://mediacloud.org/">Media Cloud</a> platform).
-      Think of it as a live integration test more than some amazing insight into who writes at what level.
-      Email rahulb [at] mit.edu if you have any questions.
-      </p>
-
+  <div class="row">
+    <div class="span12">
+      {% block content %}
+        {{ content | safe }}
+      {% endblock %}
     </div>
   </div>
 
-<div>
+  <footer>
+    <div class="row">
+      <div class="span12">
+        {% block footer %}
+          <a href="http://civic.mit.edu"><img src="/static/img/c4cm-badge.gif" name="MIT Center for Civic Media"/></a>
+          <a href="http://mediacloud.org"><img src="/static/img/mediacloud-badge.gif" name="Powered by Media Cloud"/></a>
+        {% endblock %}
+      </div>
+    </div>
+  </footer>
 
-<script type="text/javascript" src="/static/js/hogan.js"></script>
+</div>
+
 <script type="text/javascript" src="/static/js/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="/static/js/typeahead.min.js"></script>
-<script type="text/javascript" src="/static/js/d3.v2.min.js"></script>
-
-<script type="text/javascript">
-
-// called by returned JS
-function updateFilteredInfo(mediaSourceName, storyCount){
-  $('#mcFilteredInfo').html("We checked "+storyCount+" articles from "+mediaSourceName);
-}
-
-// update results based on media source user chooses
-function updateFilterResults(mediaId){
-  $('#mcFilteredResults').hide();
-  $('#mcFilteredInfo').empty();
-  $('#mcFilteredReadability').empty();
-  $.ajax({
-    type: "GET",
-    url:"/media/"+mediaId+"/info",
-    dataType: 'script'
-  });
-}
-
-// helper function to draw a standard histogram chart (called by returned JS from server)
-function histogramChart(container, dataset, chartWidth, chartHeight, barWidth, maxXValue,barsToShow, maxY, xTickCount) {
-  var y = d3.scale.linear()
-       .domain([0, maxY])
-       .range([0, chartHeight]);
-  var x = d3.scale.linear()
-       .domain([0,maxXValue])
-       .range([0, chartWidth]);
-  var chart = d3.select(container).append("svg")
-       .attr("class", "chart")
-       .attr("width", barWidth*barsToShow+50)
-       .attr("height", chartHeight+25)
-       .append("g")
-       .attr("transform", "translate(10,0)");
-  chart.selectAll("rect")
-       .data(dataset)
-       .enter().append("rect")
-       .attr("x", function(d,i) { return i*barWidth; })
-       .attr("y", function(d) {return chartHeight - y(d);} )
-       .attr("height", y)
-       .attr("width", barWidth);
-  chart.selectAll(".rule")
-       .data(x.ticks(xTickCount))
-       .enter().append("text")
-       .attr("class", "rule")
-       .attr("x", x)
-       .attr("y", chartHeight)
-       .attr("dy", 15)
-       .attr("text-anchor", "middle")
-       .text(String);
-  chart.append("line")
-       .attr("x1", 0)
-       .attr("x2", chartWidth)
-       .attr("y1", chartHeight)
-       .attr("y2", chartHeight)
-       .style("stroke", "#666");
-}
-
-</script>
-
-<script type="text/javascript">
-var allMediaSources = {{media_info_json|safe}};
-// stuff to run once the page loads
-$(function(){
-  // load up the aggregate charts
-  $.ajax({
-      type: "GET",
-      url:"/media/all/info",
-      dataType: 'script'
-    });
-  // set up to fire ajax request when user filters by news source
-  $('#mcPickDomain').typeahead({
-      local: allMediaSources,
-      updater: function(item){
-        updateFilterResults(item);
-      }
-  }).on('typeahead:selected', onTypeaheadDone)
-    .on('typeahead:autocompleted', onTypeaheadDone);
-  ;
-  $('#mcPickDomain').focus();
-});
-function onTypeaheadDone($e,datum){
-  updateFilterResults(datum.id)
-}
-function pickRandomMediaSource(){
-  var source = allMediaSources[Math.floor(Math.random()*allMediaSources.length)]
-  $('#mcPickDomain').val(source['value']);
-  updateFilterResults(source['id']);
-}
-</script>
 
 </body>
 

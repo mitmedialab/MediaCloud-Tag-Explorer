@@ -1,9 +1,2 @@
 [api]
-user: username
-pass: password
-firstpage: 1
-
-[db]
-name = mediacloud
-host: 127.0.0.1
-port: 27017
+key: YOUR_KEY_HERE

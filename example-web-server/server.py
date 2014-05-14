@@ -1,4 +1,4 @@
-import os, sys, time, json, logging, ConfigParser, pymongo, locale
+import os, sys, time, json, logging, ConfigParser
 from operator import itemgetter
 from flask import Flask, render_template
 import jinja2
@@ -7,115 +7,90 @@ parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0,parentdir) 
 import mediacloud
 import mediacloud.api
-from mcexamples.db import ExampleMongoStoryDatabase
+
+TAG_SETS_PER_PAGE = 100
+TAGS_PER_PAGE = 100
+
+TAG_DATA_FILE = 'static/data/mediacloud-tags.json'
 
 app = Flask(__name__)
 
 cache = {}  # in-memory cache, controlled by _get_from_cache and _set_in_cache helpers
 
 # setup logging
-logging.basicConfig(filename='mc-server.log',level=logging.DEBUG)
-log = logging.getLogger('mc-server')
-log.info("---------------------------------------------------------------------------")
+logger = logging.getLogger(__name__)
+log_file = logging.FileHandler('mc-api-examples-server.log')
+logger.setLevel(logging.DEBUG)
+logger.addHandler(log_file)
+logger.info("---------------------------------------------------------------------------")
 
 # connect to the database
 config = ConfigParser.ConfigParser()
 config.read(parentdir+'/mc-client.config')
-try:
-    db = ExampleMongoStoryDatabase(config.get('db','name'),config.get('db','host'),int(config.get('db','port')))
-except pymongo.errors.ConnectionFailure, e:
-    log.error(e)
-else:
-    log.info("Connected to "+config.get('db','name')+" on "+config.get('db','host')+":"+str(config.get('db','port')))
+mc = mediacloud.api.MediaCloud( config.get('api','key') )
+
+def allTagSets():
+    if os.path.isfile(TAG_DATA_FILE):
+        json_data=open(TAG_DATA_FILE)
+        data = json.load(json_data)
+        logger.debug("Loading tag sets from "+TAG_DATA_FILE)
+        return data
+    # fetch all the tag sets
+    logger.debug("Fething tag sets:")
+    tag_sets = []
+    more_tag_sets_id = True
+    max_tag_set = 0
+    while more_tag_sets_id:
+        logger.debug("  from "+str(max_tag_set))
+        results = mc.tagSetList(max_tag_set, TAG_SETS_PER_PAGE)
+        #print json.dumps(results)
+        tag_sets = tag_sets + results
+        more_tag_sets_id = len(results)>0
+        if len(results)>0:
+            max_tag_set = results[-1]['tag_sets_id']
+    logger.debug("  found "+str(len(tag_sets))+" sets")
+    # now fill in all the tags
+    for tag_set in tag_sets:
+        logger.debug("Fetching tags in set "+str(tag_set['tag_sets_id']))
+        tags = []
+        more_tags = True
+        max_tags_id = 0
+        while more_tags:
+            logger.debug(" from "+str(max_tags_id))
+            results = mc.tagList(tag_set['tag_sets_id'],max_tags_id,TAGS_PER_PAGE)
+            #print json.dumps(results)
+            tags = tags + results
+            more_tags = len(results) > 0
+            if len(results)>0:
+                max_tags_id = results[-1]['tags_id']
+        logger.debug("    found "+str(len(tags))+" tags in the set")
+        tag_set['tags'] = tags
+    # dump to a file
+    with open(TAG_DATA_FILE, 'w') as outfile:
+        json.dump(tag_sets, outfile)
+        logger.debug("Wrote tag sets to "+TAG_DATA_FILE)
+    return tag_sets
+
+def publicTagsSets():
+    tag_sets = allTagSets()
+    logger.debug("Finding just public data sets")
+    for tag_set in tag_sets:
+        if tag_set['show_on_media']==0:
+            logger.debug("  looking into tag set "+str(tag_set['tag_sets_id']))
+            for tag in tag_set['tags']:
+                if tag['show_on_media'] in (0, None):
+                    tag_set['tags'].remove(tag)
+                    #logger.debug("  removing tag "+str(tag['tags_id']))
+        if len(tag_set['tags'])==0:
+            tag_sets.remove(tag_set)
+    return tag_sets
 
 @app.route("/")
 def index():
-    media_source_info = _get_from_cache('media_source_info')
-    if media_source_info == None:
-        story_counts_by_media_id = db.storyCountByMediaId()
-        top_media_sources = []
-        media_info_json = []
-        for media_id in story_counts_by_media_id.keys():
-            clean_id = str(int(media_id))
-            media_name = _media_name(media_id)
-            only_ascii_in_name = len(''.join([x for x in media_name if ord(x) > 128])) == 0
-            if only_ascii_in_name:
-                top_media_sources.append({
-                    'id': int(media_id),
-                    'clean_id': str(int(media_id)),
-                    'name': _media_name(media_id),
-                    'story_count': story_counts_by_media_id[media_id],
-                })
-                media_info_json.append({
-                    'id': int(media_id),
-                    'story_count': int(story_counts_by_media_id[media_id]),
-                    'value': _media_name(media_id),
-                })
-        _set_in_cache('media_source_info',{
-            'top_media_sources':sorted(top_media_sources,key=itemgetter('story_count'), reverse=True), 
-            'media_info_json':media_info_json
-        })
-        media_source_info = _get_from_cache('media_source_info')
-    top_media_sources = media_source_info['top_media_sources']
-    media_info_json = media_source_info['media_info_json']
-    story_count = db.storyCount()
-    return render_template("base.html",
-        english_story_count = db.englishStoryCount(),
-        media_source_count = len(top_media_sources),
-        story_count = story_count,
-        top_media_sources = top_media_sources[0:10],
-        media_info_json = json.dumps(media_info_json),
-        max_story_id = db.getMaxStoryId()
+    tag_sets = publicTagsSets()
+    return render_template("tags.html",
+        tag_sets = tag_sets
     )
-
-@app.route("/media/all/info")
-def all_domain_info():
-    reading_level_info = _get_from_cache('reading_level_info')
-    if reading_level_info == None:
-        reading_level_info = _reading_level_info()
-        _set_in_cache('reading_level_info',reading_level_info)
-    return render_template("data.js",
-        reading_level_info = reading_level_info
-    )
-
-@app.route("/media/<media_id>/info")
-def domain_info(media_id):
-    return render_template("data_for_media_source.js",
-        media_name = _media_name(media_id),
-        story_count = db.storyCountForMediaId(media_id),
-        reading_level_info = _reading_level_info(media_id)
-    )
-
-def _media_name(media_id):
-    return mediacloud.api.mediaSource(int(media_id))['name']
-
-def _reading_level_info(domain=None, items_to_show=20):
-    data = db.storyReadingLevelFreq(domain)
-    return _assemble_info(data,1,items_to_show)
-
-def _assemble_info(data,bucket_size,items_to_show):
-    values = []
-    for key in sorted(data.iterkeys()):
-        values.append(data[key])
-    values = values[:items_to_show]
-    return {'values': values,
-            'values_json': json.dumps(values),
-            'final_bucket': bucket_size*items_to_show,
-            'items_to_show': items_to_show,
-            'biggest_value': max(values)
-    }
-
-def _get_from_cache(key, max_age=86400):
-    if key in cache:
-        if time.mktime(time.gmtime()) - cache[key]['time'] < max_age:
-            return cache[key]['value']
-    return None
-
-def _set_in_cache(key, value):
-    cache[key] = {
-        'value': value,
-        'time': time.mktime(time.gmtime())
-    }
 
 if __name__ == "__main__":
     app.debug = True
