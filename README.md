@@ -14,7 +14,7 @@ First [download the latest egg of the python api client module](https://github.c
 Now to run these examples make sure you have Python > 2.6 (and setuptools) and then install 
 some python modules:
     
-    pip instlal flask
+    pip install flask
     
 Copy the `mc-client.config.template` to `mc-client.config` and edit it, putting in the 
 API username and password, and database connection settings too.

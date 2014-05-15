@@ -1,7 +1,7 @@
 Media Cloud Example Server
 ==========================
 
-Small server to showcase metadata computed about data consumed via the Media Cloud API.
+Small server to how to use the MediaCloud-API Client in a web app.
 
 Installation
 ------------
@@ -22,17 +22,3 @@ Run this command and then visit `localhost:5000` with a web browser
 ```
 python server.py
 ```
-
-Deploying
----------
-
-First, prep your Ubuntu machine:
-```
-sudo aptitude install python
-sudo aptitude install libapache2-mod-wsgi
-sudo easy_install pip
-sudo pip install flask
-```
-
-Now follow the instructions for Configuring Apache:
-  http://flask.pocoo.org/docs/deploying/mod_wsgi/
