@@ -71,23 +71,30 @@ def allTagSets():
         logger.debug("Wrote tag sets to "+TAG_DATA_FILE)
     return tag_sets
 
-def publicTagsSets():
+def publicMediaTagSets():
     tag_sets = allTagSets()
     logger.debug("Finding just public data sets")
+    tag_sets_to_remove = []
     for tag_set in tag_sets:
-        if tag_set['show_on_media']==0:
-            logger.debug("  looking into tag set "+str(tag_set['tag_sets_id']))
+        logger.debug("  looking into tag set '"+tag_set['name']+"' "+str(tag_set['tag_sets_id']))
+        if tag_set['show_on_media'] in (0, None):
+            logger.debug("  private - checking tags")
+            removed_tag_count = 0
+            tags_to_remove = []
             for tag in tag_set['tags']:
                 if tag['show_on_media'] in (0, None):
-                    tag_set['tags'].remove(tag)
-                    #logger.debug("  removing tag "+str(tag['tags_id']))
+                    tags_to_remove.append(tag)
+                    #logger.debug("    removing tag '"+tag['tag']+"'"+str(tag['tags_id']))
+            [tag_set['tags'].remove(tag) for tag in tags_to_remove]
+            logger.debug("    removed "+str(removed_tag_count)+" tags")
         if len(tag_set['tags'])==0:
-            tag_sets.remove(tag_set)
+            tag_sets_to_remove.append(tag_set)
+    [tag_sets.remove(tag_set) for tag_set in tag_sets_to_remove]
     return tag_sets
 
 @app.route("/")
 def index():
-    tag_sets = publicTagsSets()
+    tag_sets = publicMediaTagSets()
     return render_template("tags.html",
         tag_sets = tag_sets
     )

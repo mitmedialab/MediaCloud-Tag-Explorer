@@ -9,7 +9,7 @@
 	<p>
 		<ul>
 			{% for tag in tag_set['tags'] %}
-			<li>{{tag['tag']}}</li>
+			<li>{{tag['label'] if tag['label']!=None}} ({{tag['tag']}})</li>
 			{% endfor %}
 		</ul>
 	</p>
