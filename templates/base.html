@@ -4,17 +4,32 @@
 <head>
   <title>Public Tags in Media Cloud</title>
   <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+  <link href="/static/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
   <link href="/static/css/mediacloud.css" rel="stylesheet" type="text/css"/>
   <link href="/static/css/typeahead.css" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
 
-<div class="container"> 
+<div class="container-fluid"> 
+
+  <nav class="navbar navbar-inverse navbar-default" role="navigation">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="#">MediaCloud Tag Explorer</a>
+      </div>
+      <div class="collapse navbar-collapse">
+        <ul class="nav navbar-nav">
+          <li><a href="/tags/public">Public TagSets</a></li>
+          <li><a href="/tags/country">Country Tags</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
   <header>
     <div class="row">
-      <div class="span12">
+      <div class="col-lg-12">
         {% block header %}
           {{ header | safe }}
         {% endblock %}
@@ -23,7 +38,7 @@
   </header>
 
   <div class="row">
-    <div class="span12">
+    <div class="col-lg-12">
       {% block content %}
         {{ content | safe }}
       {% endblock %}
@@ -32,7 +47,7 @@
 
   <footer>
     <div class="row">
-      <div class="span12">
+      <div class="col-lg-12">
         {% block footer %}
           <a href="http://civic.mit.edu"><img src="/static/img/c4cm-badge.gif" name="MIT Center for Civic Media"/></a>
           <a href="http://mediacloud.org"><img src="/static/img/mediacloud-badge.gif" name="Powered by Media Cloud"/></a>

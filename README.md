@@ -33,3 +33,10 @@ Run this command and then visit `localhost:5000` with a web browser
 ```
 python server.py
 ```
+
+Tags
+----
+
+The list of tags is cached locally, in `data/mediacloud-tags.json`.  If you want 
+to fetch updated tags, just delete this file and the server will recreate it for you with 
+fresh data the next time you hit the server in a browser.  Be warned - **this can take a few minutes**.

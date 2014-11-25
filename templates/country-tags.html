@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block header %}
+	<h1>Tags Indicating the Country of Focus for a Story</h1>
+{% endblock %}
+
+{% block content %}
+
+	<p>
+	In the tag set named {{tag_set['name']}} {{'('+tag_set['label']+')' if tag_set['label']!=None}}.
+	{{tag_set['tags']|length}} tags in this set.
+	{% if tag_set['description'] != None %}
+		{{tag_set['description']}}
+	{% endif %}
+	</p>
+	
+	<br />
+
+	<table class="table table-striped">
+		<tr>
+			<th>Tag ID</th>
+			<th>Tag Label (Tag Tag)</th>
+			<th>GeoNames ID</th>
+			<th>GeoNames Name</th>
+			<th>GeoNames Country Code</th>
+		</tr>
+		{% for tag in tag_set['tags'] %}
+			<tr>
+				<td>{{tag['tags_id']}}</td>
+				<td>{{tag['label'] if tag['label']!=None}} ({{tag['tag']}})</td>
+				<td>{{tag['geonames_id']}}</td>
+				<td>{{tag['geoname']['name']}}</td>
+				<td>{{tag['geoname']['countryCode']}}</td>
+			</tr>
+		{% endfor %}
+	</table>
+
+{% endblock %}
