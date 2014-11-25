@@ -1,9 +1,10 @@
-import os, sys, time, json, logging, ConfigParser
+import os, sys, time, json, logging, ConfigParser, csv
 from operator import itemgetter
 from flask import Flask, render_template
 import jinja2
 
-parentdir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+currentdir = os.path.dirname(os.path.abspath(__file__))
+parentdir = os.path.dirname(currentdir)
 sys.path.insert(0,parentdir) 
 import mediacloud
 import mediacloud.api
@@ -14,8 +15,6 @@ TAGS_PER_PAGE = 100
 TAG_DATA_FILE = 'static/data/mediacloud-tags.json'
 
 app = Flask(__name__)
-
-cache = {}  # in-memory cache, controlled by _get_from_cache and _set_in_cache helpers
 
 # setup logging
 logger = logging.getLogger(__name__)
@@ -28,6 +27,22 @@ logger.info("-------------------------------------------------------------------
 config = ConfigParser.ConfigParser()
 config.read(parentdir+'/mc-client.config')
 mc = mediacloud.api.MediaCloud( config.get('api','key') )
+
+def geonameCountryLookup():
+    lookup = {}
+    file_path = os.path.join(currentdir,'geonames-country-list.csv');
+    with open(file_path, 'rb') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=',')
+        spamreader.next()
+        for row in spamreader:
+            lookup[row[0]] = {
+                'id':row[0],
+                'countryCode':row[1],
+                'name':row[2]
+            }
+    return lookup
+
+geonames_cache = geonameCountryLookup()
 
 def allTagSets():
     if os.path.isfile(TAG_DATA_FILE):
@@ -98,6 +113,35 @@ def index():
     return render_template("tags.html",
         tag_sets = tag_sets
     )
+
+def geoname_lookup(geonames_id):
+    if geonames_id in geonames_cache:
+        return geonames_cache[geonames_id]
+    return None
+
+@app.route("/geonames")
+def locations():
+    tag_set_name = "rahulb@media.mit.edu"
+    tag_prefix = "geonames"
+    all_tag_sets = allTagSets()
+    tag_sets = [ tag_set for tag_set in all_tag_sets if tag_set_name in tag_set['name']]
+    geo_tag_set = tag_sets[0]
+    # remove any non-geo ones
+    tags_to_remove = []
+    for tag in geo_tag_set['tags']:
+        if tag_prefix in tag['tag']:
+            geonames_id = tag['tag'][9:]
+            tag['geonames_id'] = geonames_id
+            tag['geoname'] = geoname_lookup(geonames_id)
+            if tag['geoname'] is None:
+                tags_to_remove.append(tag)
+        else:
+            tags_to_remove.append(tag)
+    [geo_tag_set['tags'].remove(tag) for tag in tags_to_remove]
+    return render_template("geonames.html",
+        tag_set = geo_tag_set
+    )
+
 
 if __name__ == "__main__":
     app.debug = True

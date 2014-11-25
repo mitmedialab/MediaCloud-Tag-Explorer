@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block header %}
+	<h1>Geo-Coded Country Tags</h1>
+{% endblock %}
+
+{% block content %}
+
+	<b>{{tag_set['label'] if tag_set['label']!=None}} (<i>{{tag_set['name']}}</i>)</b>
+	{% if tag_set['description'] != None %}
+		<p><small>{{tag_set['description']}}</small></p>
+		<p><small>{{len(tag_set['tags'])}} Tags in this set.</small></p>
+	{% endif %}
+
+	<table class="table table-striped">
+		<tr>
+			<th>Tag ID</th>
+			<th>Tag Label (Tag Tag)</th>
+			<th>GeoNames ID</th>
+			<th>GeoNames Name</th>
+			<th>GeoNames Country Code</th>
+		</tr>
+		{% for tag in tag_set['tags'] %}
+			<tr>
+				<td>{{tag['tags_id']}}</td>
+				<td>{{tag['label'] if tag['label']!=None}} ({{tag['tag']}})</td>
+				<td>{{tag['geonames_id']}}</td>
+				<td>{{tag['geoname']['name']}}</td>
+				<td>{{tag['geoname']['countryCode']}}</td>
+			</tr>
+		{% endfor %}
+	</table>
+
+{% endblock %}
