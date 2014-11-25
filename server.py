@@ -3,34 +3,32 @@ from operator import itemgetter
 from flask import Flask, render_template
 import jinja2
 
-currentdir = os.path.dirname(os.path.abspath(__file__))
-parentdir = os.path.dirname(currentdir)
-sys.path.insert(0,parentdir) 
+base_dir = os.path.dirname(os.path.abspath(__file__))
 import mediacloud
 import mediacloud.api
 
 TAG_SETS_PER_PAGE = 100
 TAGS_PER_PAGE = 100
 
-TAG_DATA_FILE = 'static/data/mediacloud-tags.json'
+TAG_DATA_FILE = base_dir + 'static/data/mediacloud-tags.json'
 
 app = Flask(__name__)
 
 # setup logging
 logger = logging.getLogger(__name__)
-log_file = logging.FileHandler('mc-api-examples-server.log')
+log_file = logging.FileHandler(base_dir + 'mc-tag-explorer.log')
 logger.setLevel(logging.DEBUG)
 logger.addHandler(log_file)
 logger.info("---------------------------------------------------------------------------")
 
 # connect to the database
 config = ConfigParser.ConfigParser()
-config.read(parentdir+'/mc-client.config')
+config.read(base_dir+'/mc-client.config')
 mc = mediacloud.api.MediaCloud( config.get('api','key') )
 
 def geonameCountryLookup():
     lookup = {}
-    file_path = os.path.join(currentdir,'geonames-country-list.csv');
+    file_path = os.path.join(base_dir,'geonames-country-list.csv');
     with open(file_path, 'rb') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',')
         spamreader.next()
