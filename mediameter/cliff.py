@@ -27,7 +27,7 @@ class Cliff():
         return self._parseQuery(self.PARSE_NLP_JSON_PATH, json.dumps(json_object), demonyms)
 
     def geonamesLookup(self,geonames_id):
-        return self._query(self.GEONAMES_LOOKUP_PATH, {id:geonames_id})
+        return self._query(self.GEONAMES_LOOKUP_PATH, {'id':geonames_id})['results']
 
     def _demonymsText(self, demonyms=False):
         return "true" if demonyms else "false"
@@ -43,7 +43,7 @@ class Cliff():
     def _query(self,path,args):
         try:
             r = requests.post( self._urlTo(path), data=args)
-            #self._log.debug('CLIFF says '+r.content)
+            self._log.debug('CLIFF says '+r.content)
             return r.json()
         except requests.exceptions.RequestException as e:
             self._log.error("RequestException " + str(e))

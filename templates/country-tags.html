@@ -23,6 +23,7 @@
 			<th>GeoNames ID</th>
 			<th>GeoNames Name</th>
 			<th>GeoNames Country Code</th>
+			<th></th>
 		</tr>
 		{% for tag in tag_set['tags'] %}
 			<tr>
@@ -31,6 +32,7 @@
 				<td>{{tag['geonames_id']}}</td>
 				<td>{{tag['geoname']['name']}}</td>
 				<td>{{tag['geoname']['countryCode']}}</td>
+				<td><a href="/tags/geo/{{tag['tags_id']}}">details</a></td>
 			</tr>
 		{% endfor %}
 	</table>

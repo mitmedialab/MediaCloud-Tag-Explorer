@@ -7,6 +7,24 @@ TAG_SETS_PER_PAGE = 100
 TAGS_PER_PAGE = 100
 TAG_DATA_FILE = os.path.join(mediameter.base_dir, 'mediacloud-tags.json')
 
+GEO_TAG_SET_NAME = "rahulb@media.mit.edu"
+
+def geoTagSet():
+    all_tag_sets = mediameter.tags.allTagSets()
+    tag_sets = [ tag_set for tag_set in all_tag_sets if GEO_TAG_SET_NAME==tag_set['name']]
+    return tag_sets[0]
+
+def geoTag(tags_id):
+    geo_tag_set = geoTagSet()
+    logger.debug("!!!! looking for "+str(tags_id))
+    for tag in geo_tag_set['tags']:
+        if tag['tags_id']==int(tags_id):
+            return tag
+    return None
+
+def geonamesIdFromTagName(tag_name):
+    return tag_name[9:]
+
 def sentenceCount(tags_id):
     return mediameter.mc_server.sentenceCount('+tags_id_stories:'+str(tags_id))['count']
 
