@@ -26,13 +26,19 @@ def index():
 @app.route("/tags/<tags_id>")
 def tag_info(tags_id):
     tag = mediameter.mc_server.tag(tags_id)
+    # add in any geographic info (if it is in the geo tag set)
     geoname = None
     if tag['tag_sets_id']==mediameter.tags.geoTagSetId():
         geonames_id = mediameter.tags.geonamesIdFromTagName(tag['tag'])
         geoname = mediameter.cliff_server.geonamesLookup(geonames_id)
+    # add in usage stats
+    sentences_in_tagged_stories = mediameter.mc_server.sentenceCount("*","+tags_id_stories:"+tags_id)['count']
+    sentences_tagged = mediameter.mc_server.sentenceCount("*","+tags_id_story_sentences:"+tags_id)['count']
     return render_template("tag-info.html",
         tag = tag,
-        geoname = geoname
+        geoname = geoname,
+        sentences_in_tagged_stories = sentences_in_tagged_stories,
+        sentences_tagged = sentences_tagged
     )
 
 @app.route("/tags/country")
@@ -70,6 +76,10 @@ def search():
 def tag_by_geonames_id(geonames_id):
     tags = mediameter.mc_server.tagList(tag_sets_id=mediameter.tags.geoTagSetId(),name_like="geonames_"+str(geonames_id),rows=1)
     return jsonify(tags)
+
+@app.template_filter('number_format')
+def number_format(value):
+    return '{:,}'.format(value)
 
 if __name__ == "__main__":
     app.debug = True

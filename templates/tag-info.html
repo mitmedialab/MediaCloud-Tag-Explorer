@@ -6,11 +6,23 @@
 
 {% block content %}
 
+<p>
+{% if geoname==None %}
+	{{sentences_tagged | number_format}} sentences are tagged "{{tag['tag']}}".
+	<br />
+	{{sentences_in_tagged_stories | number_format}} sentences in stories tagged "{{tag['tag']}}".
+{% else %}
+	{{sentences_tagged | number_format}} sentences mention "{{geoname['name']}}".
+	<br />
+	{{sentences_in_tagged_stories | number_format}} sentences are in stories that focus on "{{geoname['name']}}".
+{% endif %}
+</p>
+
 {% if geoname!=None %}
 
 	<h2>{{geoname['name']}} <small>[ geonames_id={{geoname['id']}} ]</small></h2>
 	<div class="row">
-		<div class="col-lg-6">
+		<div class="col-md-6">
 			<p>
 				Learn more about this place at the geonames website: 
 				<a href="http://www.geonames.org/{{geoname['id']}}">http://www.geonames.org/{{geoname['id']}}</a>.
@@ -27,7 +39,7 @@
 				</ul>
 			</p>
 		</div>
-		<div class="col-lg-6">
+		<div class="col-md-6">
 			<div id="map"></div>
 		</div>
 	</div>
