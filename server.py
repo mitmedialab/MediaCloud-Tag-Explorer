@@ -37,8 +37,14 @@ def tag_info(tags_id):
     return render_template("tag-info.html",
         tag = tag,
         geoname = geoname,
-        sentences_in_tagged_stories = sentences_in_tagged_stories,
-        sentences_tagged = sentences_tagged
+        sentences_in_tagged_stories = {
+            'count':sentences_in_tagged_stories,
+            'search_url':'https://dashboard.mediameter.org/#query/["+tags_id_stories:'+tags_id+'"]/[{}]/[""]/[""]/[{"uid":1}]'
+        },
+        sentences_tagged = {
+            'count':sentences_tagged,
+            'search_url':'https://dashboard.mediameter.org/#query/["+tags_id_story_sentences:'+tags_id+'"]/[{}]/[""]/[""]/[{"uid":2}]'
+        }
     )
 
 @app.route("/tags/country")
