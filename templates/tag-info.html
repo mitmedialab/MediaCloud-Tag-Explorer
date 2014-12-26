@@ -9,16 +9,16 @@
 <p>
 {% if geoname==None %}
 	{{sentences_tagged['count'] | number_format}} sentences are tagged "{{tag['tag']}}".
-	<a href="{{sentences_tagged['search_url']}}">Dashboard search</a>.
+	<a href="{{sentences_tagged['search_url']}}" target="_blank">Dashboard search</a>.
 	<br />
 	{{sentences_in_tagged_stories['count'] | number_format}} sentences in stories tagged "{{tag['tag']}}".
-	<a href="{{sentences_in_tagged_stories['search_url']}}">Dashboard search</a>.
+	<a href="{{sentences_in_tagged_stories['search_url']}}" target="_blank">Dashboard search</a>.
 {% else %}
 	{{sentences_tagged['count'] | number_format}} sentences mention "{{geoname['name']}}".
-	<a href="{{sentences_tagged['search_url']}}">Dashboard search</a>.
+	<a href="{{sentences_tagged['search_url']}}" target="_blank">Dashboard search</a>.
 	<br />
 	{{sentences_in_tagged_stories['count'] | number_format}} sentences are in stories that focus on "{{geoname['name']}}".
-	<a href="{{sentences_in_tagged_stories['search_url']}}">Dashboard search</a>.
+	<a href="{{sentences_in_tagged_stories['search_url']}}" target="_blank">Dashboard search</a>.
 {% endif %}
 </p>
 
