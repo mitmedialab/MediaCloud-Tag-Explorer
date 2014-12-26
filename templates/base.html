@@ -5,8 +5,8 @@
   <title>Public Tags in Media Cloud</title>
   <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
   <link href="/static/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css"/>
+  <link href="/static/css/leaflet.css" rel="stylesheet" type="text/css"/>
   <link href="/static/css/mediacloud.css" rel="stylesheet" type="text/css"/>
-  <link href="/static/css/typeahead.css" rel="stylesheet" type="text/css"/>
 </head>
 
 <body>
@@ -16,12 +16,22 @@
   <nav class="navbar navbar-inverse navbar-default" role="navigation">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="#">MediaCloud Tag Explorer</a>
+        <a class="navbar-brand" href="{{url_for('index')}}">MediaCloud Tag Explorer</a>
       </div>
       <div class="collapse navbar-collapse">
+      <form class="navbar-form navbar-left pull-right" role="search" action="{{url_for('search')}}" method="POST">
+        <div class="form-group">
+          <select class="form-control" name="searchType">
+            <option value="tag_id">Tag ID</option>
+            <option value="geoname_id">Geoname ID</option>
+          </select>
+          <input type="text" name="searchId" class="form-control" placeholder="ID">
+        </div>
+        <button type="submit" class="btn btn-default">search</button>
+      </form>
         <ul class="nav navbar-nav">
-          <li><a href="/tags/public">Public TagSets</a></li>
-          <li><a href="/tags/country">Country Tags</a></li>
+          <li><a href="{{url_for('index')}}">Public TagSets</a></li>
+          <li><a href="{{url_for('country_tags')}}">Country Tags</a></li>
         </ul>
       </div>
     </div>
@@ -58,8 +68,12 @@
 
 </div>
 
-<script type="text/javascript" src="/static/js/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" src="/static/js/jquery-1.11.2.min.js"></script>
 <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/leaflet.js"></script>
+
+{% block page_scripts %}
+{% endblock %}
 
 </body>
 

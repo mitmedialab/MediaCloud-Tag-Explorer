@@ -7,14 +7,14 @@
 {% block content %}
 
 	{% for tag_set in tag_sets %}
-		<b>{{tag_set['label'] if tag_set['label']!=None}} (<i>{{tag_set['name']}}</i>)</b>
+		<b>{{tag_set['label'] if tag_set['label']!=None}} (<i>{{tag_set['tag_sets_id']}}: {{tag_set['name']}}</i>)</b>
 		{% if tag_set['description'] != None %}
 			<p><small>{{tag_set['description']}}</small></p>
 		{% endif %}
 		<p>
 			<ul>
 				{% for tag in tag_set['tags'] %}
-				<li>{{tag['label'] if tag['label']!=None}} ({{tag['tag']}})</li>
+				<li>{{tag['label'] if tag['label']!=None}} ({{tag['tags_id']}}: {{tag['tag']}})</li>
 				{% endfor %}
 			</ul>
 		</p>

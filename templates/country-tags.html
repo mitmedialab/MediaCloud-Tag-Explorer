@@ -32,7 +32,7 @@
 				<td>{{tag['geonames_id']}}</td>
 				<td>{{tag['geoname']['name']}}</td>
 				<td>{{tag['geoname']['countryCode']}}</td>
-				<td><a href="/tags/geo/{{tag['tags_id']}}">details</a></td>
+				<td><a href="{{url_for('tag_info',tags_id=tag['tags_id'])}}">details</a></td>
 			</tr>
 		{% endfor %}
 	</table>

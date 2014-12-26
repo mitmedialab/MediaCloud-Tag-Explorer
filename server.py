@@ -1,6 +1,6 @@
 import os, sys, time, json, logging, csv
 from operator import itemgetter
-from flask import Flask, render_template
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 import jinja2
 
 import mediacloud
@@ -23,8 +23,20 @@ def index():
         tag_sets = tag_sets
     )
 
+@app.route("/tags/<tags_id>")
+def tag_info(tags_id):
+    tag = mediameter.mc_server.tag(tags_id)
+    geoname = None
+    if tag['tag_sets_id']==mediameter.tags.geoTagSetId():
+        geonames_id = mediameter.tags.geonamesIdFromTagName(tag['tag'])
+        geoname = mediameter.cliff_server.geonamesLookup(geonames_id)
+    return render_template("tag-info.html",
+        tag = tag,
+        geoname = geoname
+    )
+
 @app.route("/tags/country")
-def locations():
+def country_tags():
     tag_prefix = "geonames"
     # grab just the geo tag set
     geo_tag_set = mediameter.tags.geoTagSet()
@@ -44,16 +56,20 @@ def locations():
         tag_set = geo_tag_set
     )
 
-@app.route("/tags/geo/<tags_id>")
-def geonames(tags_id):
-    tag = mediameter.tags.geoTag(tags_id)
-    logger.debug(repr(tag))
-    geonames_id = mediameter.tags.geonamesIdFromTagName(tag['tag'])
-    geonames_info = mediameter.cliff_server.geonamesLookup(geonames_id)
-    return render_template("geo-tag.html",
-        tags_id = tags_id,
-        geoname = geonames_info
-    )    
+@app.route("/tags/search",methods=['POST'])
+def search():
+    search_type = request.form['searchType']
+    search_id = request.form['searchId']
+    if search_type=="tag_id":
+        return redirect(url_for('tag_info',tags_id=search_id))
+    elif search_type=="geoname_id":
+        return redirect(url_for('tag_by_geonames_id', geonames_id=search_id))
+    return abort(400)
+
+@app.route("/tags/for_geoname/<geonames_id>")
+def tag_by_geonames_id(geonames_id):
+    tags = mediameter.mc_server.tagList(tag_sets_id=mediameter.tags.geoTagSetId(),name_like="geonames_"+str(geonames_id),rows=1)
+    return jsonify(tags)
 
 if __name__ == "__main__":
     app.debug = True

@@ -8,16 +8,20 @@ TAGS_PER_PAGE = 100
 TAG_DATA_FILE = os.path.join(mediameter.base_dir, 'mediacloud-tags.json')
 
 GEO_TAG_SET_NAME = "rahulb@media.mit.edu"
+geo_tag_set = None  # cached pointer to the geographic tag set
 
 def geoTagSet():
     all_tag_sets = mediameter.tags.allTagSets()
     tag_sets = [ tag_set for tag_set in all_tag_sets if GEO_TAG_SET_NAME==tag_set['name']]
     return tag_sets[0]
 
+def geoTagSetId():
+    return geoTagSet()['tag_sets_id']
+
 def geoTag(tags_id):
-    geo_tag_set = geoTagSet()
+    tag_set = geoTagSet()
     logger.debug("!!!! looking for "+str(tags_id))
-    for tag in geo_tag_set['tags']:
+    for tag in tag_set['tags']:
         if tag['tags_id']==int(tags_id):
             return tag
     return None
