@@ -14,7 +14,7 @@
 		<p>
 			<ul>
 				{% for tag in tag_set['tags'] %}
-				<li>{{tag['label'] if tag['label']!=None}} ({{tag['tags_id']}}: {{tag['tag']}})</li>
+				<li><a href="{{url_for('tag_info',tags_id=tag['tags_id'])}}">{{tag['label'] if tag['label']!=None}} ({{tag['tag']}})</a></li>
 				{% endfor %}
 			</ul>
 		</p>
