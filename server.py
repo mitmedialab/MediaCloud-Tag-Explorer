@@ -80,8 +80,8 @@ def search():
 
 @app.route("/tags/for_geoname/<geonames_id>")
 def tag_by_geonames_id(geonames_id):
-    tags = mediameter.mc_server.tagList(tag_sets_id=mediameter.tags.geoTagSetId(),name_like="geonames_"+str(geonames_id),rows=1)
-    return jsonify(tags)
+    tag = mediameter.mc_server.tagList(tag_sets_id=mediameter.tags.geoTagSetId(),name_like="geonames_"+str(geonames_id),rows=1)[0]
+    return redirect(url_for('tag_info', tags_id=tag['tags_id']))
 
 @app.template_filter('number_format')
 def number_format(value):
