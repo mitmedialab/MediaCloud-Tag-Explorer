@@ -1,4 +1,4 @@
 *.pyc
- 
 mc-client.config
 *.log
+venv

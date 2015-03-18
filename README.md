@@ -18,8 +18,7 @@ easy_install [the egg file]
 Then install the dependencies:
 
 ```
-pip install flask
-pip install requests
+pip install -r requirements.pip
 ```
 
 Then Copy the `mc-client.config.template` to `mc-client.config` and edit it, putting in the 

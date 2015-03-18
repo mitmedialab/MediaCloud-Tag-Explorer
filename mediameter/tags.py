@@ -100,3 +100,12 @@ def publicMediaTagSets():
             tag_sets_to_remove.append(tag_set)
     [tag_sets.remove(tag_set) for tag_set in tag_sets_to_remove]
     return tag_sets
+
+# cache to reduce hits to mc server
+tag_cache = {}  # id to tag
+def tag(tags_id):
+    if tags_id not in tag_cache:
+        tag = mediameter.mc_server.tag(tags_id)
+        tag_cache[tags_id] = tag
+    return tag_cache[tags_id]
+

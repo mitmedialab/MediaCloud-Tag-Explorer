@@ -25,12 +25,11 @@ def index():
 
 @app.route("/tags/<tags_id>")
 def tag_info(tags_id):
-    tag = mediameter.mc_server.tag(tags_id)
+    tag = mediameter.tags.tag(tags_id)
     # add in any geographic info (if it is in the geo tag set)
     geoname = None
     if tag['tag_sets_id']==mediameter.tags.geoTagSetId():
-        geonames_id = mediameter.tags.geonamesIdFromTagName(tag['tag'])
-        geoname = mediameter.cliff_server.geonamesLookup(geonames_id)
+        geoname = _geoname_from_tag(tag)
     # add in usage stats
     sentences_in_tagged_stories = mediameter.mc_server.sentenceCount("*","+tags_id_stories:"+tags_id)['count']
     sentences_tagged = mediameter.mc_server.sentenceCount("*","+tags_id_story_sentences:"+tags_id)['count']
@@ -82,6 +81,23 @@ def search():
 def tag_by_geonames_id(geonames_id):
     tag = mediameter.mc_server.tagList(tag_sets_id=mediameter.tags.geoTagSetId(),name_like="geonames_"+str(geonames_id),rows=1)[0]
     return redirect(url_for('tag_info', tags_id=tag['tags_id']))
+
+@app.route("/stories/<story_id>/map")
+def story_map(story_id):
+    geo_tag_set_id = mediameter.tags.geoTagSetId()
+    story = mediameter.mc_server.story(story_id,sentences=True)
+    about_geonames = [_geoname_from_tag(t) for t in story['story_tags'] if t['tag_sets_id']==geo_tag_set_id]
+    sentence_tag_ids = []
+    for sentence in story['story_sentences']:
+        sentence['geonames'] = [_geoname_from_tag(mediameter.tags.tag(tag_id)) for tag_id in sentence['tags']]
+    mentioned_geonames = []
+    for s in story['story_sentences']:
+        mentioned_geonames = mentioned_geonames + s['geonames']
+    return render_template('story-map.html', story=story, mentioned_geonames=mentioned_geonames, about_geonames=about_geonames)
+
+def _geoname_from_tag(tag):
+    geonames_id = mediameter.tags.geonamesIdFromTagName(tag['tag'])
+    return mediameter.geonames.geoname(geonames_id)
 
 @app.template_filter('number_format')
 def number_format(value):
