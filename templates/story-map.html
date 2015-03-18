@@ -2,13 +2,14 @@
 
 {% block header %}
 	<h1>About Story {{story['stories_id']}}</h1>
+	<h4>"{{story['title']}}"</h4>
 {% endblock %}
 
 {% block content %}
 
 	<div class="row">
-		<div class="col-md-6">
-			<h3>About These Places:</h3>
+		<div class="col-md-4">
+			<h4>About These Places:</h4>
 			<p>
 			<ul>
 			{% for geoname in about_geonames %}
@@ -16,9 +17,7 @@
 			{% endfor %}
 			</ul>
 			</p>
-		</div>
-		<div class="col-md-6">
-			<h3>Mentions These Places:</h3>
+			<h4>Mentions These Places:</h4>
 			<p>
 			<ul>
 			{% for geoname in mentioned_geonames %}
@@ -27,15 +26,15 @@
 			</ul>
 			</p>
 		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-md-12">
+		<div class="col-md-8">
 			<div id="map"></div>
 		</div>
 	</div>
 
 	<div class="row">
+		<div class="col-md-12">
+		<h2>Sentences</h2>
+		</div>
 		<div class="col-md-12">
 			<table class="table">
 				<tr>
@@ -51,7 +50,7 @@
 					<td>{{sentence['sentence']}}</td>
 					<td>
 					{% for geoname in sentence['geonames'] %}
-						<a href="{{url_for('tag_by_geonames_id',geonames_id=geoname['id'])}}">{{geoname['name']}}, {{geoname['countryCode']}}</a><br />
+						<a href="{{url_for('tag_by_geonames_id',geonames_id=geoname['id'])}}">{{geoname['name']}}</a><br />
 					{% endfor %}
 					</td>
 				</tr>
@@ -71,14 +70,16 @@
 		var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
 		var osmLayer = new L.TileLayer(osmUrl, {minZoom: 2, maxZoom: 14, attribution: osmAttrib});		
 
-		// start the map in South-East England
-		map.setView([0,0],2);
 		map.addLayer(osmLayer);
 
+		markers = [];
 		{% for geoname in mentioned_geonames %}
-			L.marker([{{geoname['lat']}}, {{geoname['lon']}}]).addTo(map)		
-				.bindPopup("{{geoname['name']}}");
+			markers.push( L.marker([{{geoname['lat']}}, {{geoname['lon']}}]).addTo(map)		
+				.bindPopup("{{geoname['name']}}") );
 		{% endfor %}
+		var group = new L.featureGroup(markers);
+		map.fitBounds(group.getBounds());
+
 	});
 	</script>
 {% endblock %}
