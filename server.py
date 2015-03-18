@@ -75,6 +75,8 @@ def search():
         return redirect(url_for('tag_info',tags_id=search_id))
     elif search_type=="geoname_id":
         return redirect(url_for('tag_by_geonames_id', geonames_id=search_id))
+    elif search_type=="story_id":
+        return redirect(url_for('story_map', story_id=search_id))
     return abort(400)
 
 @app.route("/tags/for_geoname/<geonames_id>")
