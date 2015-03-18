@@ -95,7 +95,9 @@ def story_map(story_id):
     mentioned_geonames = []
     for s in story['story_sentences']:
         mentioned_geonames = mentioned_geonames + s['geonames']
-    return render_template('story-map.html', story=story, mentioned_geonames=mentioned_geonames, about_geonames=about_geonames)
+    unique_mentioned_geonames = {g['id']:g for g in mentioned_geonames}.values()
+    return render_template('story-map.html', story=story, mentioned_geonames=unique_mentioned_geonames, 
+        about_geonames=about_geonames)
 
 def _geoname_from_tag(tag):
     geonames_id = mediameter.tags.geonamesIdFromTagName(tag['tag'])
