@@ -99,6 +99,12 @@ def story_map(story_id):
     return render_template('story-map.html', story=story, mentioned_geonames=unique_mentioned_geonames, 
         about_geonames=about_geonames)
 
+@app.route("/sentences/<story_sentences_id>/map")
+def sentence_map(story_sentences_id):
+    sentence = mediameter.mc_server.sentence(story_sentences_id)
+    print sentence
+    return redirect("/stories/%s/map" % sentence['stories_id'])
+
 def _geoname_from_tag(tag):
     geonames_id = mediameter.tags.geonamesIdFromTagName(tag['tag'])
     return mediameter.geonames.geoname(geonames_id)
