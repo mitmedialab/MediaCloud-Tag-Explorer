@@ -44,8 +44,8 @@
 					<th>Places</th>
 				</tr>
 			{% for sentence in story['story_sentences'] %}
-				<tr>
-					<td>{{sentence['story_sentences_id']}}</td>
+				<tr id="sentence{{sentence['story_sentences_id']}}">
+					<td><a href="#sentence{{sentence['story_sentences_id']}}" name="sentence{{sentence['story_sentences_id']}}">{{sentence['story_sentences_id']}}</a></td>
 					<td>{{sentence['sentence_number']}}</td>
 					<td>{{sentence['sentence']}}</td>
 					<td>
@@ -64,14 +64,13 @@
 {% block page_scripts %}
 	<script type="text/javascript">
 	$(function(){
+
+		// make the map
 		var map = new L.Map('map');
-		// create the tile layer with correct attribution
 		var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 		var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
 		var osmLayer = new L.TileLayer(osmUrl, {minZoom: 2, maxZoom: 14, attribution: osmAttrib});		
-
 		map.addLayer(osmLayer);
-
 		markers = [];
 		{% for geoname in mentioned_geonames %}
 			markers.push( L.marker([{{geoname['lat']}}, {{geoname['lon']}}]).addTo(map)		
@@ -79,6 +78,10 @@
 		{% endfor %}
 		var group = new L.featureGroup(markers);
 		map.fitBounds(group.getBounds());
+
+		// highlight any sentence specified
+		var sentenceElemId = window.location.hash.substring(1);
+		$('#'+sentenceElemId).addClass('success');
 
 	});
 	</script>

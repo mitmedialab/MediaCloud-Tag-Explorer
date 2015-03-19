@@ -77,6 +77,8 @@ def search():
         return redirect(url_for('tag_by_geonames_id', geonames_id=search_id))
     elif search_type=="story_id":
         return redirect(url_for('story_map', story_id=search_id))
+    elif search_type=="sentence_id":
+        return redirect(url_for('sentence_map', story_sentences_id=search_id))
     return abort(400)
 
 @app.route("/tags/for_geoname/<geonames_id>")
@@ -102,7 +104,7 @@ def story_map(story_id):
 @app.route("/sentences/<story_sentences_id>/map")
 def sentence_map(story_sentences_id):
     sentence = mediameter.mc_server.sentence(story_sentences_id)
-    return redirect("/stories/%s/map" % sentence['stories_id'])
+    return redirect("/stories/%s/map#sentence%s" % (sentence['stories_id'],sentence['story_sentences_id']))
 
 def _geoname_from_tag(tag):
     geonames_id = mediameter.tags.geonamesIdFromTagName(tag['tag'])
