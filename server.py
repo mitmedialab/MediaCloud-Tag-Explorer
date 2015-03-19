@@ -102,7 +102,6 @@ def story_map(story_id):
 @app.route("/sentences/<story_sentences_id>/map")
 def sentence_map(story_sentences_id):
     sentence = mediameter.mc_server.sentence(story_sentences_id)
-    print sentence
     return redirect("/stories/%s/map" % sentence['stories_id'])
 
 def _geoname_from_tag(tag):
