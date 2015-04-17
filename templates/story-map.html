@@ -41,6 +41,7 @@
 				<tr>
 					<th>Id</th>
 					<th>Num</th>
+					<th>Language</th>
 					<th>Sentence</th>
 					<th>Places</th>
 				</tr>
@@ -48,6 +49,7 @@
 				<tr id="sentence{{sentence['story_sentences_id']}}">
 					<td><a href="#sentence{{sentence['story_sentences_id']}}" name="sentence{{sentence['story_sentences_id']}}">{{sentence['story_sentences_id']}}</a></td>
 					<td>{{sentence['sentence_number']}}</td>
+					<td>{{sentence['language']}}</td>
 					<td>{{sentence['sentence']}}</td>
 					<td>
 					{% for geoname in sentence['geonames'] %}
