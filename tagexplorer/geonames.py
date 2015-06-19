@@ -1,9 +1,9 @@
 import os, json, logging, csv
-import mediameter
+import tagexplorer
 
 logger = logging.getLogger(__name__)
 
-GEONAMES_COUNTRY_FILE = os.path.join(mediameter.base_dir, 'geonames-country-list.csv')
+GEONAMES_COUNTRY_FILE = os.path.join(tagexplorer.base_dir, 'geonames-country-list.csv')
 
 geonames_cache = {} # id to geoname 
 
@@ -30,7 +30,7 @@ def countryInfo(geonames_id):
 # cache to reduce hits to cliff
 def geoname(geonames_id):
     if geonames_id not in geonames_cache:
-        geoname = mediameter.cliff_server.geonamesLookup(geonames_id)
+        geoname = tagexplorer.cliff_server.geonamesLookup(geonames_id)
         geonames_cache[geonames_id] = geoname
         logger.debug("added %s to geonames cache" % geonames_id)
     return geonames_cache[geonames_id]

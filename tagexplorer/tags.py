@@ -1,17 +1,17 @@
 import os, json, logging
-import mediameter
+import tagexplorer
 
 logger = logging.getLogger(__name__)
 
 TAG_SETS_PER_PAGE = 100
 TAGS_PER_PAGE = 100
-TAG_DATA_FILE = os.path.join(mediameter.base_dir, 'mediacloud-tags.json')
+TAG_DATA_FILE = os.path.join(tagexplorer.base_dir, 'mediacloud-tags.json')
 
 GEO_TAG_SET_NAME = "rahulb@media.mit.edu"
 geo_tag_set = None  # cached pointer to the geographic tag set
 
 def geoTagSet():
-    all_tag_sets = mediameter.tags.allTagSets()
+    all_tag_sets = tagexplorer.tags.allTagSets()
     tag_sets = [ tag_set for tag_set in all_tag_sets if GEO_TAG_SET_NAME==tag_set['name']]
     return tag_sets[0]
 
@@ -30,7 +30,7 @@ def geonamesIdFromTagName(tag_name):
     return tag_name[9:]
 
 def sentenceCount(tags_id):
-    return mediameter.mc_server.sentenceCount('+tags_id_stories:'+str(tags_id))['count']
+    return tagexplorer.mc_server.sentenceCount('+tags_id_stories:'+str(tags_id))['count']
 
 def allTagSets():
     '''
@@ -48,7 +48,7 @@ def allTagSets():
     max_tag_set = 0
     while more_tag_sets_id:
         logger.debug("  from "+str(max_tag_set))
-        results = mediameter.mc_server.tagSetList(max_tag_set, TAG_SETS_PER_PAGE)
+        results = tagexplorer.mc_server.tagSetList(max_tag_set, TAG_SETS_PER_PAGE)
         #print json.dumps(results)
         tag_sets = tag_sets + results
         more_tag_sets_id = len(results)>0
@@ -63,7 +63,7 @@ def allTagSets():
         max_tags_id = 0
         while more_tags:
             logger.debug(" from "+str(max_tags_id))
-            results = mediameter.mc_server.tagList(tag_set['tag_sets_id'],max_tags_id,TAGS_PER_PAGE)
+            results = tagexplorer.mc_server.tagList(tag_set['tag_sets_id'],max_tags_id,TAGS_PER_PAGE)
             #print json.dumps(results)
             tags = tags + results
             more_tags = len(results) > 0
@@ -105,7 +105,7 @@ def publicMediaTagSets():
 tag_cache = {}  # id to tag
 def tag(tags_id):
     if tags_id not in tag_cache:
-        tag = mediameter.mc_server.tag(tags_id)
+        tag = tagexplorer.mc_server.tag(tags_id)
         tag_cache[tags_id] = tag
     return tag_cache[tags_id]
 

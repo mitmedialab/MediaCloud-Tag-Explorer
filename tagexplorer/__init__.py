@@ -14,5 +14,5 @@ settings = ConfigParser.ConfigParser()
 settings.read(get_settings_file_path())
 
 # connect to everything
-mc_server = mediacloud.api.WriteableMediaCloud(settings.get('mediacloud','key'))
+mc_server = mediacloud.api.AdminMediaCloud(settings.get('mediacloud','key'))
 cliff_server = mediameter.cliff.Cliff(settings.get('cliff','host'),settings.get('cliff','port'))
