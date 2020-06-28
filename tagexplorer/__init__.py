@@ -1,18 +1,24 @@
-import os, ConfigParser
+import os
+from dotenv import load_dotenv
+import logging
 
 import mediacloud.api
-import mediameter.cliff
+from cliff.api import Cliff
+
+# setup logging
+base_dir = os.path.dirname(os.path.abspath(__file__))
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
+logger.info("---------------------------------------------------------------------------")
+
+# load in config variables
+load_dotenv()
+MC_API_KEY = os.getenv('MC_API_KEY')
+mc = mediacloud.api.AdminMediaCloud(MC_API_KEY)
+CLIFF_URL = os.getenv('CLIFF_URL')
 
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
-def get_settings_file_path():
-    config_file_path = os.path.join(base_dir,'../','mc-client.config')
-    return config_file_path
-
-# load the shared settings file
-settings = ConfigParser.ConfigParser()
-settings.read(get_settings_file_path())
-
 # connect to everything
-mc_server = mediacloud.api.AdminMediaCloud(settings.get('mediacloud','key'))
-cliff_server = mediameter.cliff.Cliff(settings.get('cliff','host'),settings.get('cliff','port'))
+mc_server = mediacloud.api.AdminMediaCloud(MC_API_KEY)
+cliff_server = Cliff(CLIFF_URL)

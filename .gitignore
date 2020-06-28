@@ -2,3 +2,5 @@
 mc-client.config
 *.log
 venv
+.env
+.idea/*

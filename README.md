@@ -7,28 +7,17 @@ created as an example of how to use the [MediaCloud API client](https://github.c
 Installation
 ------------
 
-Make sure you havy Python 2.7 (and the pip package manager).
+* install python 3.x
+* `pip install -r requirements.txt`
 
-First [download the latest egg of the python api client module](https://github.com/c4fcm/MediaCloud-API-Client/tree/master/dist) and install it like this:
-
-```
-easy_install [the egg file]
-```
-
-Then install the dependencies:
-
-```
-pip install -r requirements.pip
-```
-
-Then Copy the `mc-client.config.template` to `mc-client.config` and edit it, putting in the 
-API username and password, and database connection settings too.
+Then create a `.env` or set these two environment variables:
+* CLIFF_URL: url to a CLIFF install
+* MEDIA_CLOUD_API_KEY: your Media Cloud API key
 
 Use
 ---
 
 Run this command and then visit `localhost:5000` with a web browser
-
 ```
 python server.py
 ```

@@ -1,0 +1,9 @@
+{
+  "name": "MediaCloud-Tag-Explorer",
+  "description": "A simple tool for browing tags within the Media Cloud system",
+  "scripts": {
+    "dokku": {
+      "predepploy": "./scripts/release-tasks.sh"
+    }
+  }
+}

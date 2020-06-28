@@ -1,6 +1,0 @@
-[api]
-key: YOUR_KEY_HERE
-
-[cliff]
-host = http://127.0.0.1
-port = 8080
